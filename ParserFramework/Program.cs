@@ -74,6 +74,13 @@ namespace ParserFramework
                 return bestFunc(bestMatch);
             }
 
+            if(char.IsSymbol(CurrentChar))
+            {
+                Index += 1;
+                return new SymbolToken(CurrentChar);
+            }
+
+            Index += 1;
             return Token.UNKNOWN;
         }
     }
@@ -108,6 +115,7 @@ namespace ParserFramework
             var token = tokenizer.NextToken();
             while (token.kind != Token.Kind.EOF && !tokenizer.EOF)
             {
+                Console.WriteLine("Adding " + token.kind);
                 list.Add(token);
                 token = tokenizer.NextToken();
             }
@@ -220,6 +228,7 @@ namespace ParserFramework
 
             public override ParsingInfo Execute(TokenList list)
             {
+                Console.WriteLine("Executing  GroupRule");
                 int initialIndex = list.index;
                 var allInfo = new ParsingInfo();
                 foreach (var rule in rules)

@@ -1,0 +1,104 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ParserFramework
+{
+    public class Token
+    {
+        public Kind kind { get; private set; }
+
+        protected Token(Kind kind)
+        {
+            this.kind = kind;
+        }
+
+        public static readonly Token EOF = new Token(Kind.EOF);
+        public static readonly Token UNKNOWN = new Token(Kind.UNKNOWN);
+
+        public enum Kind
+        {
+            EOF,
+            INT,
+            FLOAT,
+            SYMBOL,
+            IDENTIFIER,
+            CUSTOM,
+            UNKNOWN
+        }
+
+        public override string ToString()
+        {
+            return "Token:" + kind;
+        }
+    }
+
+    public abstract class CustomToken : Token
+    {
+        protected CustomToken() : base(Kind.CUSTOM) { }
+    }
+
+    public abstract class NumberToken : Token
+    {
+        protected NumberToken(Kind k) : base(k) { }
+    }
+
+    public class IntToken : NumberToken
+    {
+        public int Value { get; private set; }
+        public IntToken(int value) : base(Kind.INT)
+        {
+            this.Value = value;
+        }
+        public override string ToString()
+        {
+            return base.ToString() + " " + Value;
+        }
+    }
+    public class FloatToken : NumberToken
+    {
+        public float Value { get; private set; }
+        public FloatToken(float value) : base(Kind.FLOAT)
+        {
+            this.Value = value;
+        }
+        public override string ToString()
+        {
+            return base.ToString() + " " + Value;
+        }
+    }
+
+    public class SymbolToken : Token
+    {
+        public string Value { get; protected set; }
+
+        public SymbolToken(char symbol) : base(Token.Kind.SYMBOL)
+        {
+            Value = "" + symbol;
+        }
+        public SymbolToken(string symbol) : base(Token.Kind.SYMBOL)
+        {
+            Value = "" + symbol;
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() + " " + Value;
+        }
+    }
+
+    public class IdToken : Token
+    {
+        public string Value { get; private set; }
+        public IdToken(string id) : base(Kind.IDENTIFIER)
+        {
+            this.Value = id;
+        }
+        public override string ToString()
+        {
+            return base.ToString() + " " + Value;
+        }
+    }
+}

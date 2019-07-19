@@ -76,9 +76,40 @@ namespace ParserFramework
                     Console.WriteLine("Fator found ");
                     SolveFator(pair.Value as ParsingInfo.ChildInfo);
                 }
+                else if(pair.Key == "expr_op")
+                {
+                    SolveExpressionOp(pair.Value.AsChildInfo);
+                }
+                else
+                {
+                    Console.WriteLine("expr has " + pair.Key);
+                }
             }
 
             return sum;
+        }
+
+        static float SolveExpressionOp(ParsingInfo.ChildInfo expr)
+        {
+            foreach(var pair in expr.child.info)
+            {
+                if (pair.Key.StartsWith("child"))
+                {
+                    foreach (var childPair in pair.Value.AsChildInfo.child.info)
+                    {
+                        if (childPair.Key == "op")
+                        {
+                            Console.WriteLine("op is " + childPair.Value);
+                        }
+                        else if (childPair.Key == "fator")
+                        {
+                            SolveFator(childPair.Value.AsChildInfo);
+                        }
+                    }
+                }
+            }
+
+            return 0;
         }
 
         static float SolveFator(ParsingInfo.ChildInfo groupInfo)
@@ -89,6 +120,10 @@ namespace ParserFramework
                 {
                     Console.WriteLine("Number found " + pair.Value);
                     Console.WriteLine("= " + SolveNumber(pair.Value as ParsingInfo.ChildInfo));
+                }
+                else
+                {
+                    Console.WriteLine("fator has " + pair.Key);
                 }
             }
 
@@ -113,7 +148,7 @@ namespace ParserFramework
             {
                 var signalToken = numberInfo.child.info["signal"].AsTokenInfo.token;
                 var symbol = signalToken as SymbolToken;
-                if(symbol!=null)
+                if (symbol != null)
                 {
                     if(symbol.Value == "-")
                     {

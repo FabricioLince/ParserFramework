@@ -15,7 +15,7 @@ namespace ParserFramework
             return new GroupRule
             {
                 name = "number",
-                kind = GroupRule.Kind.Mandatory,
+                kind = ParseRule.Kind.Mandatory,
                 rules = new List<ParseRule>()
                 {
                     new TokenRule(Symbol, "+", "-") { name = "signal" ,kind= ParseRule.Kind.Optional },
@@ -29,14 +29,14 @@ namespace ParserFramework
             return new GroupRule()
             {
                 name = "expr",
-                kind = GroupRule.Kind.Mandatory,
+                kind = ParseRule.Kind.Mandatory,
                 rules = new List<ParseRule>()
                 {
                     MultiplicationRule(),
                     new GroupRule()
                     {
                         name = "expr_op",
-                        kind = GroupRule.Kind.Multiple,
+                        kind = ParseRule.Kind.Multiple,
                         rules = new List<ParseRule>()
                         {
                             new TokenRule("op", Symbol, "+", "-"),

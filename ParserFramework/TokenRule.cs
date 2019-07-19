@@ -31,7 +31,7 @@ namespace ParserFramework
             if (token == null) return null;
 
             ParsingInfo info = new ParsingInfo();
-            info.tokens.Add(name, token);
+            info.Add(name, token);
             return info;
         }
     }

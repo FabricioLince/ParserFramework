@@ -20,14 +20,14 @@ namespace ParserFramework
                 {
                     new GroupRule()
                     {
-                        name ="symbol",
+                        name = "symbol",
                         kind= GroupRule.Kind.Optional,
-                        rules=new List<ParseRule>()
+                        rules = new List<ParseRule>()
                         {
-                            new TokenRule(Symbol, "+", "-"){ name = "signal" }
+                            new TokenRule(Symbol, "+", "-") { name = "signal" }
                         }
                     },
-                    new TokenRule(Number) {name = "value" }
+                    new TokenRule(Number) { name = "value" }
                 }
             };
         }
@@ -40,14 +40,15 @@ namespace ParserFramework
                 kind = GroupRule.Kind.Mandatory,
                 rules = new List<ParseRule>()
                 {
-                    NumberRule(),
+                    MultiplicationRule(),
                     new GroupRule()
                     {
-                        kind = GroupRule.Kind.OneOrMore,
-                        rules= new List<ParseRule>()
+                        name = "expr_op",
+                        kind = GroupRule.Kind.Multiple,
+                        rules = new List<ParseRule>()
                         {
-                            new TokenRule(Symbol, "+", "-"){ name = "op" },
-                            NumberRule()
+                            new TokenRule(Symbol, "+", "-") { name = "op" },
+                            MultiplicationRule()
                         }
                     }
                 }
@@ -71,6 +72,29 @@ namespace ParserFramework
             };
 
             return rule.Execute(list);
+        }
+
+        public static ParseRule MultiplicationRule()
+        {
+            return new GroupRule
+            {
+                name = "fator",
+                kind = GroupRule.Kind.Mandatory,
+                rules = new List<ParseRule>()
+                {
+                    NumberRule(),
+                    new GroupRule()
+                    {
+                        name = "fator_op",
+                        kind = GroupRule.Kind.Multiple,
+                        rules = new List<ParseRule>()
+                        {
+                            new TokenRule(Symbol, "*", "/"),
+                            NumberRule()
+                        }
+                    }
+                }
+            };
         }
 
         public static ParsingInfo Multiplication(TokenList list)
@@ -100,11 +124,11 @@ namespace ParserFramework
             }
 
             ParsingInfo info = new ParsingInfo();
-            info.tokens.Add("numberA", numberA.tokens["number"]);
-            info.tokens.Add("symbolA", numberA.tokens["symbol"]);
-            info.tokens.Add("operator", op);
-            info.tokens.Add("numberB", numberB.tokens["number"]);
-            info.tokens.Add("symbolB", numberB.tokens["symbol"]);
+            info.info.Add("numberA", numberA.info["number"]);
+            info.info.Add("symbolA", numberA.info["symbol"]);
+            info.Add("operator", op);
+            info.info.Add("numberB", numberB.info["number"]);
+            info.info.Add("symbolB", numberB.info["symbol"]);
             return info;
         }
 
@@ -135,11 +159,11 @@ namespace ParserFramework
             }
 
             ParsingInfo info = new ParsingInfo();
-            info.tokens.Add("numberA", numberA.tokens["number"]);
-            info.tokens.Add("symbolA", numberA.tokens["symbol"]);
-            info.tokens.Add("operator", op);
-            info.tokens.Add("numberB", numberB.tokens["number"]);
-            info.tokens.Add("symbolB", numberB.tokens["symbol"]);
+            info.info.Add("numberA", numberA.info["number"]);
+            info.info.Add("symbolA", numberA.info["symbol"]);
+            info.Add("operator", op);
+            info.info.Add("numberB", numberB.info["number"]);
+            info.info.Add("symbolB", numberB.info["symbol"]);
             return info;
         }
 
@@ -159,14 +183,10 @@ namespace ParserFramework
             var number = list.Current as NumberToken;
             list.MoveNext();
 
-            return new ParsingInfo()
-            {
-                tokens = new Dictionary<string, Token>()
-                {
-                    { "number", number },
-                    { "symbol", symbol }
-                }
-            };
+            var rt = new ParsingInfo();
+            rt.Add("number", number);
+            rt.Add("symbol", symbol);
+            return rt;
         }
 
         public static NumberToken Number(TokenList list, params string[] args)

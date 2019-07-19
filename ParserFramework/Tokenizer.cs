@@ -84,7 +84,6 @@ namespace ParserFramework
             chara = CurrentChar;
             Index += 1;
             return Token.UNKNOWN;
-            return new SymbolToken(chara);
         }
     }
 

@@ -14,18 +14,18 @@ namespace ParserFramework
         {
             string[] testCases = new string[]
             {
-                "12+1",
-                "1-1",
+                "-12+1*2*3",/*
+                "1-1-2+1",
                 "1*22",
                 "\"test\"",
-                "11",
+                "11",/*
                 "2=2",
                 "4/2",
                 "abs",
                 "-15",
                 "+1337",
                 "++1",
-                "1.1+1+-3.14-+1"
+                "1.1+1+-3.14-+1"*/
             };
 
             foreach (string testCase in testCases)
@@ -47,34 +47,15 @@ namespace ParserFramework
                 }
                 else
                 {
-                    var expr = Parser.AdditionRule().Execute(list);
+                    ParsingInfo expr = Parser.AdditionRule().Execute(list);
                     if (expr != null)
                     {
-                        if ((expr.tokens["op"] as SymbolToken).Value == "+")
-                            Console.WriteLine("is addition");
-                        else
-                            Console.WriteLine("is subtraction");
                         Console.WriteLine(expr);
+                        SolveExpression(expr);
                     }
                     else
                     {
-                        expr = Parser.Multiplication(list);
-                        if (expr != null)
-                        {
-                            if ((expr.tokens["operator"] as SymbolToken).Value == "*")
-                                Console.WriteLine("is multiplication");
-                            else
-                                Console.WriteLine("is division");
-                        }
-                        else
-                        {
-                            info = Parser.NumberRule().Execute(list);
-                            if (info != null)
-                            {
-                                Console.WriteLine("is number");
-                                Console.WriteLine(info);
-                            }
-                        }
+                        Console.WriteLine("dont know");
                     }
                 }
                 //Console.WriteLine(expr);
@@ -82,6 +63,66 @@ namespace ParserFramework
             }
 
             Console.ReadKey(true);
+        }
+
+        static float SolveExpression(ParsingInfo expr)
+        {
+            if (expr.IsEmpty) return 0;
+            int sum = 0;
+            foreach (var pair in expr.info)
+            {
+                if(pair.Key == "fator")
+                {
+                    Console.WriteLine("Fator found ");
+                    SolveFator(pair.Value as ParsingInfo.ChildInfo);
+                }
+            }
+
+            return sum;
+        }
+
+        static float SolveFator(ParsingInfo.ChildInfo groupInfo)
+        {
+            foreach(var pair in groupInfo.child.info)
+            {
+                if(pair.Key == "number")
+                {
+                    Console.WriteLine("Number found " + pair.Value);
+                    Console.WriteLine("= " + SolveNumber(pair.Value as ParsingInfo.ChildInfo));
+                }
+            }
+
+            return 0;
+        }
+
+        static float SolveNumber(ParsingInfo.ChildInfo numberInfo)
+        {
+            float value = 0;
+
+            var numberToken = numberInfo.child.info["value"].AsTokenInfo.token;
+            if (numberToken is IntToken)
+            {
+                value = (numberToken as IntToken).Value;
+            }
+            else if (numberToken is FloatToken)
+            {
+                value = (numberToken as FloatToken).Value;
+            }
+
+            if(numberInfo.child.info.ContainsKey("signal"))
+            {
+                var signalToken = numberInfo.child.info["signal"].AsTokenInfo.token;
+                var symbol = signalToken as SymbolToken;
+                if(symbol!=null)
+                {
+                    if(symbol.Value == "-")
+                    {
+                        value *= -1;
+                    }
+                }
+            }
+
+            return value;
         }
     }
 

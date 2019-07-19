@@ -18,15 +18,7 @@ namespace ParserFramework
                 kind = GroupRule.Kind.Mandatory,
                 rules = new List<ParseRule>()
                 {
-                    new GroupRule()
-                    {
-                        name = "symbol",
-                        kind= GroupRule.Kind.Optional,
-                        rules = new List<ParseRule>()
-                        {
-                            new TokenRule(Symbol, "+", "-") { name = "signal" }
-                        }
-                    },
+                    new TokenRule(Symbol, "+", "-") { name = "signal" ,kind= ParseRule.Kind.Optional },
                     new TokenRule(Number) { name = "value" }
                 }
             };
@@ -47,7 +39,7 @@ namespace ParserFramework
                         kind = GroupRule.Kind.Multiple,
                         rules = new List<ParseRule>()
                         {
-                            new TokenRule(Symbol, "+", "-") { name = "op" },
+                            new TokenRule("op", Symbol, "+", "-"),
                             MultiplicationRule()
                         }
                     }
@@ -89,7 +81,7 @@ namespace ParserFramework
                         kind = GroupRule.Kind.Multiple,
                         rules = new List<ParseRule>()
                         {
-                            new TokenRule(Symbol, "*", "/"),
+                            new TokenRule("op", Symbol, "*", "/"),
                             NumberRule()
                         }
                     }

@@ -10,5 +10,12 @@ namespace ParserFramework
     {
         public abstract ParsingInfo Execute(TokenList list);
         public string name;
+
+        public Kind kind = Kind.Mandatory;
+        public enum Kind
+        {
+            Mandatory, Optional, Multiple, OneOrMore
+        }
+
     }
 }

@@ -9,11 +9,6 @@ namespace ParserFramework
     public class GroupRule : ParseRule
     {
         public List<ParseRule> rules = new List<ParseRule>();
-        public Kind kind = Kind.Mandatory;
-        public enum Kind
-        {
-            Mandatory, Optional, Multiple, OneOrMore
-        }
 
         public override ParsingInfo Execute(TokenList list)
         {
@@ -59,13 +54,18 @@ namespace ParserFramework
                 var info = rule.Execute(list);
                 if (info == null)
                 {
-                    list.index = initialIndex;
-                    return null;
+                    if (rule.kind == Kind.Mandatory || rule.kind == Kind.OneOrMore)
+                    {
+                        list.index = initialIndex;
+                        return null;
+                    }
+                    else if (rule.kind == Kind.Optional || rule.kind == Kind.Multiple)
+                        continue;
                 }
 
                 if (info.IsEmpty) continue;
 
-                if (info.info.Count == 1)
+                if (info.info.Count == 1 && rule is TokenRule)
                 {
                     var tokenInfo = info.info.First().Value.AsTokenInfo;
                     if (tokenInfo != null)

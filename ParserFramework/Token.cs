@@ -54,7 +54,7 @@ namespace ParserFramework
         }
         public override string ToString()
         {
-            return base.ToString() + " " + Value;
+            return kind + " " + Value;
         }
     }
     public class FloatToken : NumberToken
@@ -66,7 +66,7 @@ namespace ParserFramework
         }
         public override string ToString()
         {
-            return base.ToString() + " " + Value;
+            return kind + " " + Value;
         }
     }
 
@@ -85,7 +85,7 @@ namespace ParserFramework
 
         public override string ToString()
         {
-            return base.ToString() + "" + Value;
+            return kind + "" + Value;
         }
     }
 
@@ -98,7 +98,7 @@ namespace ParserFramework
         }
         public override string ToString()
         {
-            return base.ToString() + " " + Value;
+            return kind + " " + Value;
         }
     }
 }

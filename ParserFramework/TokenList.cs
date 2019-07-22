@@ -13,7 +13,7 @@ namespace ParserFramework
 
         public int index = -1;
 
-        public Token Current => index >= list.Count ? null : list[index];
+        public Token Current => index < 0 ? list[index = 0] : index >= list.Count ? null : list[index];
 
         public bool MoveNext()
         {

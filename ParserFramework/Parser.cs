@@ -71,14 +71,14 @@ namespace ParserFramework
             return new GroupRule
             {
                 name = "fator",
-                kind = GroupRule.Kind.Mandatory,
+                kind = ParseRule.Kind.Mandatory,
                 rules = new List<ParseRule>()
                 {
                     NumberRule(),
                     new GroupRule()
                     {
                         name = "fator_op",
-                        kind = GroupRule.Kind.Multiple,
+                        kind = ParseRule.Kind.Multiple,
                         rules = new List<ParseRule>()
                         {
                             new TokenRule("op", Symbol, "*", "/"),

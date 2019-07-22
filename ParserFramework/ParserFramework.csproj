@@ -43,13 +43,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\TokenParser.cs" />
+    <Compile Include="Expression\Solver.cs" />
     <Compile Include="FunctionRule.cs" />
     <Compile Include="GroupRule.cs" />
-    <Compile Include="Parser.cs" />
+    <Compile Include="Expression\Parser.cs" />
     <Compile Include="ParseRule.cs" />
     <Compile Include="ParsingInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RuleCreator.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="Tokenizer.cs" />
     <Compile Include="TokenList.cs" />

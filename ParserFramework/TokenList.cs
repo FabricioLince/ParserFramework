@@ -21,6 +21,10 @@ namespace ParserFramework
                 return list[index] != null;
             return false;
         }
+        public bool MoveToPrevious()
+        {
+            return index > 0 && Previous != null;
+        }
 
         public Token Previous
         {
@@ -43,6 +47,18 @@ namespace ParserFramework
             }
             //Console.WriteLine("Adding " + token);
             list.Add(token);
+        }
+
+        public TokenT Get<TokenT>() where TokenT : Token
+        {
+            if (Current == null) return null;
+            if (!(Current is TokenT))
+            {
+                return null;
+            }
+            var rt = Current as TokenT;
+            MoveNext();
+            return rt;
         }
     }
 

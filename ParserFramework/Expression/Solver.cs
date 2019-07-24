@@ -8,13 +8,8 @@ namespace ParserFramework.Expression
     {
         public static bool TrySolve(string expression, out float result)
         {
-            Tokenizer tokenizer = new Tokenizer(new StringReader(expression));
-            tokenizer.rules.Add(new Regex(@"^([0-9]+)"), m => new IntToken(int.Parse(m.Value)));
-            tokenizer.rules.Add(new Regex(@"^([0-9]+(?:\.[0-9]+)?)"), m => new FloatToken(float.Parse(m.Value.Replace('.', ','))));
-            tokenizer.rules.Add(new Regex(@"^([a-z]+)"), m => new IdToken(m.Value));
-
-            TokenList list = new TokenList(tokenizer);
-            var expr = Parser.AdditionRule().Execute(list);
+            var list = Parser.DefaultTokenList(expression);
+            var expr = Parser.AdditionRule.Execute(list);
             if (expr != null)
             {
                 result = SolveExpression(expr);
@@ -90,7 +85,7 @@ namespace ParserFramework.Expression
             {
                 if (pair.Key == "number")
                 {
-                    var number = SolveNumber(pair.Value as ParsingInfo.ChildInfo);
+                    var number = SolveNumber(pair.Value.AsChildInfo.child);
                     //Console.WriteLine("= " + number);
                     product = number;
                 }
@@ -101,7 +96,7 @@ namespace ParserFramework.Expression
                     {
                         ParsingInfo fator_op = fatorChildPair.Value.AsChildInfo.child;
                         var opToken = fator_op.info["op"].AsTokenInfo.token as SymbolToken;
-                        var number = SolveNumber(fator_op.info["number"].AsChildInfo);
+                        var number = SolveNumber(fator_op.info["number"].AsChildInfo.child);
                         //Console.WriteLine("fator op is " + opToken.Value + " " + number);
                         switch (opToken.Value)
                         {
@@ -126,11 +121,11 @@ namespace ParserFramework.Expression
             return product;
         }
 
-        static float SolveNumber(ParsingInfo.ChildInfo numberInfo)
+        public static float SolveNumber(ParsingInfo numberInfo)
         {
             float value = 0;
 
-            var numberToken = numberInfo.child.info["value"].AsTokenInfo.token;
+            var numberToken = numberInfo.info["value"].AsTokenInfo.token;
             if (numberToken is IntToken)
             {
                 value = (numberToken as IntToken).Value;
@@ -140,9 +135,9 @@ namespace ParserFramework.Expression
                 value = (numberToken as FloatToken).Value;
             }
 
-            if (numberInfo.child.info.ContainsKey("signal"))
+            if (numberInfo.info.ContainsKey("signal"))
             {
-                var signalToken = numberInfo.child.info["signal"].AsTokenInfo.token;
+                var signalToken = numberInfo.info["signal"].AsTokenInfo.token;
                 var symbol = signalToken as SymbolToken;
                 if (symbol != null)
                 {

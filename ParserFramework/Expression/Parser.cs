@@ -1,71 +1,73 @@
 ﻿using ParserFramework.Core;
 using ParserFramework.ParseRules;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace ParserFramework.Expression
 {
     public class Parser
     {
-        public static ParseRule NumberRule()
+        //number :: [Symbol(+ -)] NumberToken
+        public static ParseRule NumberRule => new GroupRule
         {
-            //number :: [Symbol(+ -)] NumberToken
-
-            return new GroupRule
+            name = "number",
+            kind = ParseRule.Kind.Mandatory,
+            rules = new List<ParseRule>()
             {
-                name = "number",
-                kind = ParseRule.Kind.Mandatory,
-                rules = new List<ParseRule>()
-                {
-                    //new FunctionRule(list=> TokenParser.Symbol(list, "+", "-") ){ name = "signal", kind = ParseRule.Kind.Optional },
-                    new TokenRule<NumberToken>("value")
-                }
-            };
-        }
+                new SymbolRule("+", "-") { name = "signal", kind = ParseRule.Kind.Optional },
+                new TokenRule<NumberToken>("value")
+            }
+        };
 
-        public static ParseRule AdditionRule()
+        public static ParseRule AdditionRule => new GroupRule()
         {
-            return new GroupRule()
+            name = "expr",
+            kind = ParseRule.Kind.Mandatory,
+            rules = new List<ParseRule>()
             {
-                name = "expr",
-                kind = ParseRule.Kind.Mandatory,
-                rules = new List<ParseRule>()
+                MultiplicationRule,
+                new GroupRule()
                 {
-                    MultiplicationRule(),
-                    new GroupRule()
+                    name = "expr_op",
+                    kind = ParseRule.Kind.Multiple,
+                    rules = new List<ParseRule>()
                     {
-                        name = "expr_op",
-                        kind = ParseRule.Kind.Multiple,
-                        rules = new List<ParseRule>()
-                        {
-                            //new TokenRule("op", TokenParser.Symbol, "+", "-"),
-                            MultiplicationRule()
-                        }
+                        new SymbolRule("+", "-") { name = "op" },
+                        MultiplicationRule,
                     }
                 }
-            };
-        }
+            }
+        };
 
-        public static ParseRule MultiplicationRule()
+        public static ParseRule MultiplicationRule => new GroupRule
         {
-            return new GroupRule
+            name = "fator",
+            kind = ParseRule.Kind.Mandatory,
+            rules = new List<ParseRule>()
             {
-                name = "fator",
-                kind = ParseRule.Kind.Mandatory,
-                rules = new List<ParseRule>()
+                NumberRule,
+                new GroupRule()
                 {
-                    NumberRule(),
-                    new GroupRule()
+                    name = "fator_op",
+                    kind = ParseRule.Kind.Multiple,
+                    rules = new List<ParseRule>()
                     {
-                        name = "fator_op",
-                        kind = ParseRule.Kind.Multiple,
-                        rules = new List<ParseRule>()
-                        {
-                            //new TokenRule("op", TokenParser.Symbol, "*", "/"),
-                            NumberRule()
-                        }
+                        new SymbolRule("*", "/") { name = "op" },
+                        NumberRule
                     }
                 }
-            };
+            }
+        };
+
+        public static TokenList DefaultTokenList(string input)
+        {
+            Tokenizer tokenizer = new Tokenizer(new StringReader(input));
+            tokenizer.rules.Add(new Regex(@"^([0-9]+)"), m => new IntToken(int.Parse(m.Value)));
+            tokenizer.rules.Add(new Regex(@"^([0-9]+(?:\.[0-9]+)?)"), m => new FloatToken(float.Parse(m.Value.Replace('.', ','))));
+            tokenizer.rules.Add(new Regex(@"^([a-z]+)"), m => new IdToken(m.Value));
+
+            return new TokenList(tokenizer);
         }
     }
 }

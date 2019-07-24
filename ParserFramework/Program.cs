@@ -21,15 +21,20 @@ namespace ParserFramework
 
         static void Main(string[] args)
         {
-            var input = "index = 13";
+            var input = "-1 + 13*-8+3.14";
             
-            var list = DefaultTokenList(input);
-            var rule = Attribuition;
-            rule.kind = ParseRule.Kind.Multiple;
+            var list = Expression.Parser.DefaultTokenList(input);
+            var rule = Expression.Parser.AdditionRule;
 
             var info = rule.Execute(list);
             if (info == null) Console.WriteLine("NOOPE");
             Console.WriteLine(info);
+            try
+            {
+                Expression.Solver.TrySolve(input, out float result);
+            }
+            catch (NullReferenceException) { }
+            Console.WriteLine();
 
             Console.ReadKey(true);
         }

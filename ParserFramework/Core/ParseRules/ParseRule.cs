@@ -2,6 +2,22 @@
 {
     public abstract class ParseRule
     {
+        public string name;
+
+        public Kind kind = Kind.Mandatory;
+        public enum Kind
+        {
+            Mandatory, Optional, Multiple, OneOrMore
+        }
+
+        /// <summary>
+        /// being true means this will return ParsingInfo.Empty even if it's a match
+        /// being false the ParsingInfo returned will contain every match
+        /// </summary>
+        public bool ignore = false;
+
+        protected abstract ParsingInfo Parse(TokenList list);
+
         public ParsingInfo Execute(TokenList list)
         {
             var info = Parse(list);
@@ -26,21 +42,10 @@
                     otherInfo = Parse(list);
                 }
 
-                if (childNo > 1) return allInfo;
+                if (childNo > 1) return ignore ? ParsingInfo.Empty : allInfo;
             }
 
-            return info;
+            return ignore ? ParsingInfo.Empty : info;
         }
-
-        protected abstract ParsingInfo Parse(TokenList list);
-
-        public string name;
-
-        public Kind kind = Kind.Mandatory;
-        public enum Kind
-        {
-            Mandatory, Optional, Multiple, OneOrMore
-        }
-
     }
 }

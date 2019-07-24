@@ -23,6 +23,7 @@ namespace ParserFramework
 
         public void Add(string name, Token token)
         {
+            if (name == null) throw new ArgumentException("name can't be null");
             info.Add(name, new TokenInfo() { name = name, token = token });
         }
         public void Add(string name, ParsingInfo child)
@@ -33,6 +34,8 @@ namespace ParserFramework
 
         public override string ToString()
         {
+            if (IsEmpty) return "info:empty\n";
+
             var rt = "info:\n";
 
             foreach (var pair in info)

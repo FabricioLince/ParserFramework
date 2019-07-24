@@ -7,29 +7,18 @@ namespace ParserFramework.ParseRules
     {
         public List<ParseRule> rules = new List<ParseRule>();
 
-
         protected override ParsingInfo Parse(TokenList list)
         {
             var allInfo = new ParsingInfo();
-            int initialIndex = list.index;
+
             foreach (var rule in rules)
             {
-                //Console.WriteLine("Executing " + rule.GetType().Name);
                 var info = rule.Execute(list);
-                if (info == null)
-                {
-                    if (rule.kind == Kind.Mandatory || rule.kind == Kind.OneOrMore)
-                    {
-                        list.index = initialIndex;
-                        return null;
-                    }
-                    else if (rule.kind == Kind.Optional || rule.kind == Kind.Multiple)
-                        continue;
-                }
+                if (info == null) return null; // if it's null it's an error
 
-                if (info.IsEmpty) continue;
+                if (info.IsEmpty) continue; // if it's empty don't put it on the info
 
-                if (info.info.Count == 1 )//&& rule is TokenRule)
+                if (info.info.Count == 1) // if only has one token child, put token child on info
                 {
                     var tokenInfo = info.info.First().Value.AsTokenInfo;
                     if (tokenInfo != null)
@@ -50,17 +39,6 @@ namespace ParserFramework.ParseRules
                     name += "_";
                 }
                 allInfo.Add(name, info);
-                /*
-                foreach (var pair in info.info)
-                {
-                    var key = pair.Key;
-                    while (allInfo.info.ContainsKey(key))
-                    {
-                        key += "_";
-                    }
-                    allInfo.info.Add(key, pair.Value);
-                }
-                */
             }
 
             return allInfo;

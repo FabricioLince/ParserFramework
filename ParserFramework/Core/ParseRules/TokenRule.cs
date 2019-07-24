@@ -16,6 +16,7 @@ namespace ParserFramework.ParseRules
 
         public TokenRule(Predicate<TokenType> filter)
         {
+            name = "token_" + typeof(TokenType).Name;
             this.filter = filter;
         }
 
@@ -25,6 +26,7 @@ namespace ParserFramework.ParseRules
             if (token == null) return null;
             if (filter != null && filter(token) == false)
             {
+                list.MoveToPrevious();
                 return null;
             }
 

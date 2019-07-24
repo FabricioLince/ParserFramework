@@ -9,10 +9,26 @@ namespace ParserFramework
 {
     class Program
     {
+        static ParseRule Attribuition => new GroupRule
+        {
+            rules = new List<ParseRule>()
+            {
+                new TokenRule<IdToken>("var_name"),
+                new SymbolRule("="){ignore=true},
+                new TokenRule<NumberToken>("value")
+            }
+        };
+
         static void Main(string[] args)
         {
-            var input = "number :: [SymbolToken('+')] NumberToken";
-            var info = RuleCreator.ParseRuleString(input);
+            var input = "index = 13";
+            
+            var list = DefaultTokenList(input);
+            var rule = Attribuition;
+            rule.kind = ParseRule.Kind.Multiple;
+
+            var info = rule.Execute(list);
+            if (info == null) Console.WriteLine("NOOPE");
             Console.WriteLine(info);
 
             Console.ReadKey(true);
@@ -50,23 +66,37 @@ namespace ParserFramework
             return new Regex(PatternForSymbols(symbols));
         }
 
+        public static ParseRule StringRule => new AlternateRule
+        {
+            name = "string",
+            possibilities = new List<ParseRule>()
+            {
+                new GroupRule()
+                {
+                    rules = new List<ParseRule>()
+                    {
+                        new SymbolRule("\"") { ignore = true },
+                        new TokenRule<IdToken>("value"),
+                        new SymbolRule("\"") { ignore = true },
+                    }
+                },
+                new GroupRule()
+                {
+                    rules = new List<ParseRule>()
+                    {
+                        new SymbolRule("'") { ignore = true },
+                        new TokenRule<IdToken>("value"),
+                        new SymbolRule("'") { ignore = true },
+                    }
+                }
+            }
+        };
+
         public static ParsingInfo String(TokenList list)
         {
             //string :: Symbol(") Identifier Symbol(")
 
-            GroupRule rule = new GroupRule
-            {
-                name = "string",
-                kind = ParseRule.Kind.Mandatory,
-                rules = new List<ParseRule>()
-                {
-                    new SymbolRule("\""),
-                    new TokenRule<IdToken>(),
-                    new SymbolRule("\"")
-                }
-            };
-
-            return rule.Execute(list);
+            return StringRule.Execute(list);
         }
 
         static TokenList DefaultTokenList(string input)

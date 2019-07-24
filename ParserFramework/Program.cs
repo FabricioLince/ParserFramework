@@ -1,12 +1,9 @@
 ﻿using ParserFramework.Core;
-using ParserFramework.Expression;
+using ParserFramework.ParseRules;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace ParserFramework
 {
@@ -14,53 +11,9 @@ namespace ParserFramework
     {
         static void Main(string[] args)
         {
-            string[] testCases = new string[]
-            {
-                "-12+1*2*3",
-                "1-1-2+1",
-                "1*22",
-                "\"test\"",
-                "11",
-                "2=2",
-                "4/2",
-                "abs",
-                "-15",
-                "+1337",
-                "++1",
-                "1.1+1+-3.14-+1"
-            };
-            
-            foreach (string testCase in testCases)
-            {
-                TokenList list = DefaultTokenList(testCase);
-                list.MoveNext();
-
-                Console.WriteLine("Testing: " + testCase);
-                ParsingInfo info = String(list);
-                if (info != null)
-                {
-                    Console.WriteLine("Is string");
-                }
-                else
-                {
-                    if (Solver.TrySolve(testCase, out float result))
-                    {
-                        Console.WriteLine("result = " + result);
-                    }
-                    else
-                    {
-                        Console.WriteLine("dont know");
-                    }
-                }
-                Console.WriteLine();
-            }
-
-            string input = "number :: [SymbolToken('+')] NumberToken";
-            var tokens = RuleCreator.GetTokens(input);
-            foreach (Token token in tokens)
-            {
-                Console.WriteLine(token);
-            }
+            var input = "number :: [SymbolToken('+')] NumberToken";
+            var info = RuleCreator.ParseRuleString(input);
+            Console.WriteLine(info);
 
             Console.ReadKey(true);
         }
@@ -107,9 +60,9 @@ namespace ParserFramework
                 kind = ParseRule.Kind.Mandatory,
                 rules = new List<ParseRule>()
                 {
-                    new TokenRule(TokenParser.Symbol, "\""),
-                    new TokenRule(TokenParser.Identifier),
-                    new TokenRule(TokenParser.Symbol, "\"")
+                    new SymbolRule("\""),
+                    new TokenRule<IdToken>(),
+                    new SymbolRule("\"")
                 }
             };
 
@@ -127,5 +80,5 @@ namespace ParserFramework
             return list;
         }
 
-    }  
+    }
 }

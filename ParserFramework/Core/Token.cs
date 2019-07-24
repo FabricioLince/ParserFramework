@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ParserFramework
+﻿namespace ParserFramework
 {
     public class Token
     {
@@ -47,7 +41,7 @@ namespace ParserFramework
 
     public class IntToken : NumberToken
     {
-        public  int Value { get; protected set; }
+        public int Value { get; protected set; }
         public IntToken(int value) : base(Kind.INT)
         {
             this.Value = value;

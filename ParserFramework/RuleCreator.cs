@@ -1,11 +1,8 @@
 ﻿using ParserFramework.Core;
-using System;
+using ParserFramework.ParseRules;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace ParserFramework
 {
@@ -17,7 +14,7 @@ namespace ParserFramework
             return null;
         }
 
-        static ParsingInfo ParseRuleString(string input)
+        public static ParsingInfo ParseRuleString(string input)
         {
             var list = GetTokens(input);
             return RuleStringRule().Execute(list);
@@ -31,11 +28,11 @@ namespace ParserFramework
                 kind = ParseRule.Kind.Mandatory,
                 rules = new List<ParseRule>()
                 {
-                    new TokenRule("name", Core.TokenParser.Identifier),
-                    new TokenRule("::", Core.TokenParser.Symbol, "::"),
-                    Anything()
+                    new TokenRule<IdToken>("name"),
+                    new SymbolRule("::")
                 }
             };
+            
         }
         static ParseRule Anything()
         {
@@ -45,8 +42,8 @@ namespace ParserFramework
                 kind = ParseRule.Kind.Multiple,
                 rules = new List<ParseRule>()
                 {
-                    new TokenRule("id", TokenParser.Identifier){ kind = ParseRule.Kind.Optional },
-                    new TokenRule("sb", TokenParser.Symbol){ kind = ParseRule.Kind.Optional },
+                    new TokenRule<IdToken>("id"){ kind = ParseRule.Kind.Optional },
+                    new TokenRule<IdToken>("sb"){ kind = ParseRule.Kind.Optional },
                 }
             };
         }

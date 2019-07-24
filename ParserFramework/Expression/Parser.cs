@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using ParserFramework.Core;
+﻿using ParserFramework.Core;
+using ParserFramework.ParseRules;
+using System.Collections.Generic;
 
 namespace ParserFramework.Expression
 {
@@ -15,8 +16,8 @@ namespace ParserFramework.Expression
                 kind = ParseRule.Kind.Mandatory,
                 rules = new List<ParseRule>()
                 {
-                    new TokenRule(TokenParser.Symbol, "+", "-") { name = "signal", kind = ParseRule.Kind.Optional },
-                    new TokenRule(TokenParser.Number) { name = "value" }
+                    //new FunctionRule(list=> TokenParser.Symbol(list, "+", "-") ){ name = "signal", kind = ParseRule.Kind.Optional },
+                    new TokenRule<NumberToken>("value")
                 }
             };
         }
@@ -36,7 +37,7 @@ namespace ParserFramework.Expression
                         kind = ParseRule.Kind.Multiple,
                         rules = new List<ParseRule>()
                         {
-                            new TokenRule("op", TokenParser.Symbol, "+", "-"),
+                            //new TokenRule("op", TokenParser.Symbol, "+", "-"),
                             MultiplicationRule()
                         }
                     }
@@ -59,7 +60,7 @@ namespace ParserFramework.Expression
                         kind = ParseRule.Kind.Multiple,
                         rules = new List<ParseRule>()
                         {
-                            new TokenRule("op", TokenParser.Symbol, "*", "/"),
+                            //new TokenRule("op", TokenParser.Symbol, "*", "/"),
                             NumberRule()
                         }
                     }

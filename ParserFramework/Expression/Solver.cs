@@ -15,7 +15,7 @@ namespace ParserFramework.Expression
 
             TokenList list = new TokenList(tokenizer);
             var expr = Parser.AdditionRule().Execute(list);
-            if(expr != null)
+            if (expr != null)
             {
                 result = SolveExpression(expr);
                 return true;

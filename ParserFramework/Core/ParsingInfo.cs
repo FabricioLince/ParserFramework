@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ParserFramework
 {
@@ -64,7 +61,7 @@ namespace ParserFramework
                 return "TK:" + token;
             }
         }
-        public class ChildInfo:Info
+        public class ChildInfo : Info
         {
             public ParsingInfo child;
             public override string ToString()

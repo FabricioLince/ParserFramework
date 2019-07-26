@@ -12,7 +12,6 @@ namespace ParserFramework.Expression
         public static ParseRule NumberRule => new GroupRule
         {
             name = "number",
-            kind = ParseRule.Kind.Mandatory,
             rules = new List<ParseRule>()
             {
                 new SymbolRule("+", "-") { name = "signal", kind = ParseRule.Kind.Optional },
@@ -43,7 +42,6 @@ namespace ParserFramework.Expression
         public static ParseRule MultiplicationRule => new GroupRule
         {
             name = "fator",
-            kind = ParseRule.Kind.Mandatory,
             rules = new List<ParseRule>()
             {
                 NumberRule,
@@ -51,6 +49,7 @@ namespace ParserFramework.Expression
                 {
                     name = "fator_op",
                     kind = ParseRule.Kind.Multiple,
+                    //simplifyTree = true,
                     rules = new List<ParseRule>()
                     {
                         new SymbolRule("*", "/") { name = "op" },

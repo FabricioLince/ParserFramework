@@ -18,7 +18,8 @@ namespace ParserFramework.ParseRules
 
                 if (info.IsEmpty) continue; // if it's empty don't put it on the info
 
-                if (info.info.Count == 1) // if only has one token child, put token child on info
+                // if only has one token child, put token child on info
+                if (!(rule is GroupRule) && info.info.Count == 1)
                 {
                     var tokenInfo = info.info.First().Value.AsTokenInfo;
                     if (tokenInfo != null)

@@ -32,6 +32,12 @@ namespace ParserFramework
             info.Add(name, new ChildInfo() { name = name, child = child });
         }
 
+        public Info this[string name]
+        {
+            get { return info[name]; }
+            set { info[name] = value; }
+        }
+
         public override string ToString()
         {
             if (IsEmpty) return "info:empty\n";
@@ -54,6 +60,9 @@ namespace ParserFramework
             public string name;
             public TokenInfo AsTokenInfo => this as TokenInfo;
             public ChildInfo AsChildInfo => this as ChildInfo;
+
+            public Token AsToken => AsTokenInfo?.token ?? null;
+            public ParsingInfo AsChild => AsChildInfo?.child ?? null;
         }
 
         public class TokenInfo : Info

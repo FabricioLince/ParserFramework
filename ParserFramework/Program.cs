@@ -21,10 +21,11 @@ namespace ParserFramework
 
         static void Main(string[] args)
         {
-            var input = "-1 + 13*-8+3.14";
+            var input = "-1 ++ 13--8*2--3.14";
             
             var list = Expression.Parser.DefaultTokenList(input);
             var rule = Expression.Parser.AdditionRule;
+            rule.kind = ParseRule.Kind.Multiple;
 
             var info = rule.Execute(list);
             if (info == null) Console.WriteLine("NOOPE");
@@ -32,8 +33,9 @@ namespace ParserFramework
             try
             {
                 Expression.Solver.TrySolve(input, out float result);
+                Console.WriteLine("result = " + result);
             }
-            catch (NullReferenceException) { }
+            catch (ArgumentException) { }
             Console.WriteLine();
 
             Console.ReadKey(true);

@@ -94,6 +94,7 @@ namespace ParserFramework.Expression
                     // fator_op has as many childs as there are operations
                     foreach (var fatorChildPair in pair.Value.AsChildInfo.child.info)
                     {
+                        //Console.WriteLine(fatorChildPair.Key + ":" + fatorChildPair.Value);
                         ParsingInfo fator_op = fatorChildPair.Value.AsChildInfo.child;
                         var opToken = fator_op.info["op"].AsTokenInfo.token as SymbolToken;
                         var number = SolveNumber(fator_op.info["number"].AsChildInfo.child);
@@ -125,21 +126,19 @@ namespace ParserFramework.Expression
         {
             float value = 0;
 
-            var numberToken = numberInfo.info["value"].AsTokenInfo.token;
-            if (numberToken is IntToken)
+            var numberToken = numberInfo["value"].AsToken;
+            if (numberToken is IntToken integer)
             {
-                value = (numberToken as IntToken).Value;
+                value = integer.Value;
             }
-            else if (numberToken is FloatToken)
+            else if (numberToken is FloatToken floating)
             {
-                value = (numberToken as FloatToken).Value;
+                value = floating.Value;
             }
 
             if (numberInfo.info.ContainsKey("signal"))
             {
-                var signalToken = numberInfo.info["signal"].AsTokenInfo.token;
-                var symbol = signalToken as SymbolToken;
-                if (symbol != null)
+                if (numberInfo["signal"].AsToken is SymbolToken symbol)
                 {
                     if (symbol.Value == "-")
                     {

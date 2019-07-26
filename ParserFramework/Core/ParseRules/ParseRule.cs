@@ -42,7 +42,8 @@
                     otherInfo = Parse(list);
                 }
 
-                if (childNo > 1) return ignore ? ParsingInfo.Empty : allInfo;
+                //if (childNo > 1)
+                    return ignore ? ParsingInfo.Empty : allInfo;
             }
 
             return ignore ? ParsingInfo.Empty : info;

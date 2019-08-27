@@ -1,5 +1,6 @@
 ﻿using ParserFramework.Core;
 using ParserFramework.ParseRules;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -44,16 +45,35 @@ namespace ParserFramework.Expression
             name = "fator",
             rules = new List<ParseRule>()
             {
-                NumberRule,
+                Term,
                 new GroupRule()
                 {
                     name = "fator_op",
                     kind = ParseRule.Kind.Multiple,
-                    //simplifyTree = true,
                     rules = new List<ParseRule>()
                     {
                         new SymbolRule("*", "/") { name = "op" },
-                        NumberRule
+                        Term
+                    }
+                }
+            }
+        };
+
+        public static ParseRule Term => new AlternateRule
+        {
+            name = "term",
+            possibilities = new List<ParseRule>()
+            {
+                NumberRule,
+                new GroupRule()
+                {
+                    name = "sub_expr",
+                    rulesF = new List<Func<ParseRule>>()
+                    {
+                        () => new SymbolRule("+", "-") { name = "signal", kind = ParseRule.Kind.Optional },
+                        () => new SymbolRule("("),
+                        () => AdditionRule,
+                        () => new SymbolRule(")"),
                     }
                 }
             }

@@ -1,18 +1,32 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ParserFramework.ParseRules
 {
     public class GroupRule : ParseRule
     {
-        public List<ParseRule> rules = new List<ParseRule>();
+        public List<ParseRule> rules
+        {
+            set
+            {
+                rulesF = new List<Func<ParseRule>>();
+                foreach(var rule in value)
+                {
+                    rulesF.Add(() => rule);
+                }
+            }
+        }
+
+        public List<Func<ParseRule>> rulesF = new List<Func<ParseRule>>();
 
         protected override ParsingInfo Parse(TokenList list)
         {
             var allInfo = new ParsingInfo();
 
-            foreach (var rule in rules)
+            foreach (var ruleF in rulesF)
             {
+                var rule = ruleF();
                 var info = rule.Execute(list);
                 if (info == null) return null; // if it's null it's an error
 
@@ -34,7 +48,7 @@ namespace ParserFramework.ParseRules
                     }
                 }
 
-                var name = rule.name;
+                var name = rule.name??"nameless " +rule.GetType().Name;
                 while (allInfo.info.ContainsKey(name))
                 {
                     name += "_";

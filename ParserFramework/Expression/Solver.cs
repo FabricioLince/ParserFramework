@@ -89,6 +89,10 @@ namespace ParserFramework.Expression
                     //Console.WriteLine("= " + number);
                     product = number;
                 }
+                else if (pair.Key == "term")
+                {
+                    var term = SolveTerm(pair.Value.AsChild);
+                }
                 else if (pair.Key == "fator_op")
                 {
                     // fator_op has as many childs as there are operations
@@ -97,7 +101,7 @@ namespace ParserFramework.Expression
                         //Console.WriteLine(fatorChildPair.Key + ":" + fatorChildPair.Value);
                         ParsingInfo fator_op = fatorChildPair.Value.AsChildInfo.child;
                         var opToken = fator_op.info["op"].AsTokenInfo.token as SymbolToken;
-                        var number = SolveNumber(fator_op.info["number"].AsChildInfo.child);
+                        var number = SolveTerm(fator_op.info["term"].AsChild);
                         //Console.WriteLine("fator op is " + opToken.Value + " " + number);
                         switch (opToken.Value)
                         {
@@ -120,6 +124,22 @@ namespace ParserFramework.Expression
             }
             //Console.WriteLine("Result " + product);
             return product;
+        }
+
+        public static float SolveTerm(ParsingInfo termInfo)
+        {
+            Console.WriteLine("Solving term \n" + termInfo);
+            
+
+            if(termInfo.GetToken("value"))
+            {
+                Console.WriteLine("is number");
+                return SolveNumber(termInfo);
+            }
+
+
+            Console.WriteLine();
+            return 0;
         }
 
         public static float SolveNumber(ParsingInfo numberInfo)

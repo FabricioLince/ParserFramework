@@ -3,25 +3,16 @@ using ParserFramework.ParseRules;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace ParserFramework
 {
     class Program
     {
-        static ParseRule Attribuition => new GroupRule
-        {
-            rules = new List<ParseRule>()
-            {
-                new TokenRule<IdToken>("var_name"),
-                new SymbolRule("="){ignore=true},
-                new TokenRule<NumberToken>("value")
-            }
-        };
-
         static void Main(string[] args)
         {
-            var input = "-1 ++ 13--8*2--3.14";
+            var input = "8*2";
             
             var list = Expression.Parser.DefaultTokenList(input);
             var rule = Expression.Parser.AdditionRule;

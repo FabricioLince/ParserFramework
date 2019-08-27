@@ -32,6 +32,13 @@ namespace ParserFramework
             info.Add(name, new ChildInfo() { name = name, child = child });
         }
 
+        public Token GetToken(string name)
+        {
+            if (info.ContainsKey(name) == false) return null;
+            var i = info[name];
+            return i.AsToken;
+        }
+
         public Info this[string name]
         {
             get { return info[name]; }

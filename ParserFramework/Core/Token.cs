@@ -27,6 +27,8 @@
         {
             return "Token:" + kind;
         }
+
+        public static implicit operator bool (Token t) => t != null;
     }
 
     public abstract class CustomToken : Token

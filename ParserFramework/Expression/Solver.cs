@@ -12,133 +12,165 @@ namespace ParserFramework.Expression
             var expr = Parser.AdditionRule.Execute(list);
             if (expr != null)
             {
-                result = SolveExpression(expr);
+                result = SolveAddition(expr);
                 return true;
             }
             result = 0;
             return false;
         }
 
-        static float SolveExpression(ParsingInfo expr)
+        static float SolveAddition(ParsingInfo expr)
         {
             if (expr.IsEmpty) return 0;
+            if (expr.FirstInfo.name == "Add")
+            {
+                expr = expr.FirstInfo.AsChild;
+            }
             float sum = 0;
             foreach (var pair in expr.info)
             {
-                if (pair.Key == "fator")
+                if (pair.Key == "Mult")
                 {
-                    sum = SolveFator(pair.Value as ParsingInfo.ChildInfo);
+                    sum = SolveMult(pair.Value.AsChild);
                 }
-                else if (pair.Key == "expr_op")
+                else if (pair.Key == "add_op")
                 {
-                    sum = SolveExpressionOp(sum, pair.Value.AsChildInfo);
+                    sum = SolveAddOperand_Multiple(sum, pair.Value.AsChild);
                 }
                 else
                 {
-                    Console.WriteLine("expr has " + pair.Key);
+                    Console.WriteLine("Add has \'" + pair.Key + "\'");
                 }
             }
 
             return sum;
         }
 
-        static float SolveExpressionOp(float currentValue, ParsingInfo.ChildInfo expr)
+        static float SolveAddOperand_Multiple(float sumSoFar, ParsingInfo info)
         {
-            float sum = currentValue;
-            foreach (var pair in expr.child.info)
+            foreach (var pair in info.info)
             {
-                if (pair.Key.StartsWith("child"))
-                {
-                    float value = 0;
-                    string oper = "+";
-                    foreach (var childPair in pair.Value.AsChildInfo.child.info)
-                    {
-                        if (childPair.Key == "op")
-                        {
-                            var opToken = childPair.Value.AsTokenInfo.token as SymbolToken;
-                            oper = opToken.Value;
-                        }
-                        else if (childPair.Key == "fator")
-                        {
-                            value = SolveFator(childPair.Value.AsChildInfo);
-                        }
-                    }
-                    switch (oper)
-                    {
-                        case "+":
-                            sum += value;
-                            break;
-                        case "-":
-                            sum -= value;
-                            break;
-                    }
-                }
+                sumSoFar = SolveAddOperand(sumSoFar, pair.Value.AsChild.FirstInfo.AsChild);
+            }
+            return sumSoFar;
+        }
+        static float SolveAddOperand(float sumSoFar, ParsingInfo info)
+        {
+            var opSymbolToken = info.GetToken("op") as SymbolToken;
+            var op = opSymbolToken.Value;
+            Console.WriteLine(op);
+
+            float mult = SolveMult(info["Mult"].AsChild);
+
+            switch(op)
+            {
+                case "+":
+                    sumSoFar += mult;
+                    break;
+                case "-":
+                    sumSoFar -= mult;
+                    break;
             }
 
-            return sum;
+            foreach (var pair in info.info)
+            {
+                if (pair.Key == "op" || pair.Key == "Mult") { } else
+                {
+                    Console.WriteLine("add_op has \'" + pair.Key + "\'");
+                }
+            }
+            return sumSoFar;
         }
 
-        static float SolveFator(ParsingInfo.ChildInfo groupInfo)
+        static float SolveMult(ParsingInfo info)
         {
             float product = 0;
-            foreach (var pair in groupInfo.child.info)
+            foreach (var pair in info.info)
             {
-                if (pair.Key == "number")
+                if (pair.Key == "Term")
                 {
-                    var number = SolveNumber(pair.Value.AsChildInfo.child);
-                    //Console.WriteLine("= " + number);
-                    product = number;
+                    product = SolveTerm(pair.Value.AsChild);
                 }
-                else if (pair.Key == "term")
+                else if (pair.Key == "mult_op")
                 {
-                    var term = SolveTerm(pair.Value.AsChild);
-                }
-                else if (pair.Key == "fator_op")
-                {
-                    // fator_op has as many childs as there are operations
-                    foreach (var fatorChildPair in pair.Value.AsChildInfo.child.info)
-                    {
-                        //Console.WriteLine(fatorChildPair.Key + ":" + fatorChildPair.Value);
-                        ParsingInfo fator_op = fatorChildPair.Value.AsChildInfo.child;
-                        var opToken = fator_op.info["op"].AsTokenInfo.token as SymbolToken;
-                        var number = SolveTerm(fator_op.info["term"].AsChild);
-                        //Console.WriteLine("fator op is " + opToken.Value + " " + number);
-                        switch (opToken.Value)
-                        {
-                            case "*":
-                                product *= number;
-                                break;
-                            case "/":
-                                product /= number;
-                                break;
-                            default:
-                                Console.WriteLine("Symbol " + opToken.Value + " not accepted");
-                                break;
-                        }
-                    }
+                    product = SolveMultOperand_Multiple(product, pair.Value.AsChild);
                 }
                 else
                 {
-                    Console.WriteLine("fator has additional " + pair.Key);
+                    Console.WriteLine("Mult has \'" + pair.Key + "\'");
                 }
             }
-            //Console.WriteLine("Result " + product);
+            Console.WriteLine("Mult solved to " + product);
             return product;
         }
 
-        public static float SolveTerm(ParsingInfo termInfo)
+        static float SolveMultOperand_Multiple(float sumSoFar, ParsingInfo info)
         {
-            Console.WriteLine("Solving term \n" + termInfo);
-            
-
-            if(termInfo.GetToken("value"))
+            foreach (var pair in info.info)
             {
-                Console.WriteLine("is number");
-                return SolveNumber(termInfo);
+                sumSoFar = SolveMultOperand(sumSoFar, pair.Value.AsChild.FirstInfo.AsChild);
+            }
+            return sumSoFar;
+        }
+        static float SolveMultOperand(float productSoFar, ParsingInfo info)
+        {
+            var opSymbolToken = info.GetToken("op") as SymbolToken;
+            var op = opSymbolToken.Value;
+            Console.WriteLine(op);
+
+            float term = SolveTerm(info["Term"].AsChild);
+
+            switch (op)
+            {
+                case "*":
+                    productSoFar *= term;
+                    break;
+                case "/":
+                    productSoFar *= term;
+                    break;
             }
 
+            foreach (var pair in info.info)
+            {
+                if (pair.Key == "op" || pair.Key == "Term") { }
+                else
+                {
+                    Console.WriteLine("mult_op has \'" + pair.Key + "\'");
+                }
+            }
+            return productSoFar;
+        }
 
-            Console.WriteLine();
+        static float SolveTerm(ParsingInfo info)
+        {
+            float term = 0;
+            foreach (var pair in info.info)
+            {
+                if (pair.Key == "Number")
+                {
+                    term = SolveNumber(pair.Value.AsChild);
+                }
+                else if (pair.Key == "sub_expr")
+                {
+                    term = SolveSubExpr(pair.Value.AsChild);
+                }
+                else
+                {
+                    Console.WriteLine("Term has \'" + pair.Key + "\'");
+                }
+            }
+            Console.WriteLine("Term solved to " + term);
+            return term;
+        }
+
+        public static float SolveSubExpr(ParsingInfo info)
+        {
+            return SolveAddition(info.FirstInfo.AsChild);
+
+            foreach (var pair in info.info)
+            {
+                Console.WriteLine("sub_expr has \'" + pair.Key + "\'");
+            }
             return 0;
         }
 

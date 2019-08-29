@@ -12,7 +12,7 @@ namespace ParserFramework.Expression
         //number :: [Symbol(+ -)] NumberToken
         public static ParseRule NumberRule => new GroupRule
         {
-            name = "number",
+            name = "Number",
             rules = new List<ParseRule>()
             {
                 new SymbolRule("+", "-") { name = "signal", kind = ParseRule.Kind.Optional },
@@ -22,14 +22,14 @@ namespace ParserFramework.Expression
 
         public static ParseRule AdditionRule => new GroupRule()
         {
-            name = "expr",
+            name = "Add",
             kind = ParseRule.Kind.Mandatory,
             rules = new List<ParseRule>()
             {
                 MultiplicationRule,
                 new GroupRule()
                 {
-                    name = "expr_op",
+                    name = "add_op",
                     kind = ParseRule.Kind.Multiple,
                     rules = new List<ParseRule>()
                     {
@@ -42,13 +42,13 @@ namespace ParserFramework.Expression
 
         public static ParseRule MultiplicationRule => new GroupRule
         {
-            name = "fator",
+            name = "Mult",
             rules = new List<ParseRule>()
             {
                 Term,
                 new GroupRule()
                 {
-                    name = "fator_op",
+                    name = "mult_op",
                     kind = ParseRule.Kind.Multiple,
                     rules = new List<ParseRule>()
                     {
@@ -61,7 +61,7 @@ namespace ParserFramework.Expression
 
         public static ParseRule Term => new AlternateRule
         {
-            name = "term",
+            name = "Term",
             possibilities = new List<ParseRule>()
             {
                 NumberRule,
@@ -71,9 +71,9 @@ namespace ParserFramework.Expression
                     rulesF = new List<Func<ParseRule>>()
                     {
                         () => new SymbolRule("+", "-") { name = "signal", kind = ParseRule.Kind.Optional },
-                        () => new SymbolRule("("),
+                        () => new SymbolRule("("){ ignore=true },
                         () => AdditionRule,
-                        () => new SymbolRule(")"),
+                        () => new SymbolRule(")"){ ignore=true },
                     }
                 }
             }

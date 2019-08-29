@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ParserFramework
 {
@@ -37,6 +38,14 @@ namespace ParserFramework
             if (info.ContainsKey(name) == false) return null;
             var i = info[name];
             return i.AsToken;
+        }
+
+        public Info FirstInfo
+        {
+            get
+            {
+                return info.First().Value;
+            }
         }
 
         public Info this[string name]

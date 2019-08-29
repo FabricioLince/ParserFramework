@@ -12,11 +12,11 @@ namespace ParserFramework
     {
         static void Main(string[] args)
         {
-            var input = "8*2";
+            var input = "3*(2-5)";
             
             var list = Expression.Parser.DefaultTokenList(input);
             var rule = Expression.Parser.AdditionRule;
-            rule.kind = ParseRule.Kind.Multiple;
+            //rule.kind = ParseRule.Kind.Multiple;
 
             var info = rule.Execute(list);
             if (info == null) Console.WriteLine("NOOPE");
@@ -110,3 +110,30 @@ namespace ParserFramework
 
     }
 }
+
+/*
+ <number>
+gets a token of type NumberToken
+<symbol>
+gets a token of type SymbolToken
+<symbol + - >
+gets a token of type SymbolToken only if the symbol
+caught matchs one of the symbols specified
+:+
+syntatic sugar for <symbol + >
+<id>
+gets a token of type IdToken
+
+RuleName = Rules
+creates a rule named RuleName comprised of the rules
+specified in Rules
+
+Add = Mult expr_op*
+expr_op = <symbol + - > Mult
+Mult = Term fator_op*
+fator_op = <symbol * / > Term
+Term = (Number | sub_expr)
+sub_expr = [<symbol + - >] :( Add :)
+Number = [<symbol + - >] <number>
+     
+     */

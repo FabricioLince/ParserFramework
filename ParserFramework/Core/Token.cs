@@ -3,6 +3,8 @@
     public class Token
     {
         public Kind kind { get; private set; }
+        public int lineNumber, collumnNumber;
+        public string Position => "[" + lineNumber + ":" + collumnNumber + "]";
 
         protected Token(Kind kind)
         {

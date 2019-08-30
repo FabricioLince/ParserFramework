@@ -9,17 +9,6 @@ namespace ParserFramework.Expression
 {
     public class Parser
     {
-        //number :: [Symbol(+ -)] NumberToken
-        public static ParseRule NumberRule => new GroupRule
-        {
-            name = "Number",
-            rules = new List<ParseRule>()
-            {
-                new SymbolRule("+", "-") { name = "signal", kind = ParseRule.Kind.Optional },
-                new TokenRule<NumberToken>("value")
-            }
-        };
-
         public static ParseRule AdditionRule => new GroupRule()
         {
             name = "Add",
@@ -64,7 +53,7 @@ namespace ParserFramework.Expression
             name = "Term",
             possibilities = new List<ParseRule>()
             {
-                NumberRule,
+                Number,
                 new GroupRule()
                 {
                     name = "sub_expr",
@@ -76,6 +65,16 @@ namespace ParserFramework.Expression
                         () => new SymbolRule(")"){ ignore=true },
                     }
                 }
+            }
+        };
+
+        public static ParseRule Number => new GroupRule
+        {
+            name = "Number",
+            rules = new List<ParseRule>()
+            {
+                new SymbolRule("+", "-") { name = "signal", kind = ParseRule.Kind.Optional },
+                new NumberRule() { name = "value" }
             }
         };
 

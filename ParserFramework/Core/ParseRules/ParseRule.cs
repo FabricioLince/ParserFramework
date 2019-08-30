@@ -1,4 +1,6 @@
-﻿namespace ParserFramework.ParseRules
+﻿using System.Collections.Generic;
+
+namespace ParserFramework.ParseRules
 {
     public abstract class ParseRule
     {
@@ -9,6 +11,11 @@
         {
             Mandatory, Optional, Multiple, OneOrMore
         }
+
+        public string Descriptor => GetType().Name + " " + name;
+
+        public List<ParseErrorInfo> errorInfo = new List<ParseErrorInfo>();
+        public bool Error { get; protected set; } = false;
 
         /// <summary>
         /// being true means this will return ParsingInfo.Empty even if it's a match
@@ -47,6 +54,22 @@
             }
 
             return ignore ? ParsingInfo.Empty : info;
+        }
+    }
+
+    public class ParseErrorInfo
+    {
+        public string expected;
+        public string got;
+        public Token tokenGot;
+        string position => tokenGot == null ? "" : " " + tokenGot.Position;
+        public ParseRule rule;
+
+        public override string ToString()
+        {
+            if (rule == null)
+                return "expected " + expected + " | got " + got + position + "\n";
+            return "expected " + expected + " | got " + got + position + " from rule " + rule.Descriptor + "\n";
         }
     }
 }

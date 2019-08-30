@@ -12,14 +12,27 @@ namespace ParserFramework
     {
         static void Main(string[] args)
         {
-            var input = "3*(2-5)";
-            
-            var list = Expression.Parser.DefaultTokenList(input);
+            var input = "3*(2";
+
+            TokenList list = Expression.Parser.DefaultTokenList(input);
             var rule = Expression.Parser.AdditionRule;
-            //rule.kind = ParseRule.Kind.Multiple;
 
             var info = rule.Execute(list);
-            if (info == null) Console.WriteLine("NOOPE");
+            if (info == null) Console.WriteLine("not an " + rule.name);
+
+            var error = "";
+            for (int i = 0; i < rule.errorInfo.Count; i++)
+            {
+                error += rule.errorInfo[i].ToString();
+            }
+            bool bad = rule.errorInfo.Any(err => err.tokenGot.kind == Token.Kind.EOF);
+            //if (list.Current.kind != Token.Kind.EOF || rule.Error || bad)
+            {
+                Console.WriteLine("Error Status: " + rule.Error);
+                Console.WriteLine("Stopped on " + list.Current);
+                Console.WriteLine("ERROR:\n" + error);
+            }
+
             Console.WriteLine(info);
             try
             {
@@ -108,6 +121,28 @@ namespace ParserFramework
             return list;
         }
 
+    }
+
+    public static class Utils
+    {
+        public static string ReduceToString<T>(this IEnumerable<T> en, Func<T, string> ToString, string separator)
+        {
+            string rt = "";
+            foreach(var t in en)
+            {
+                rt += ToString(t) + separator;
+            }
+            return rt;
+        }
+        public static string ReduceToString<T>(this IEnumerable<T> en, string separator) where T : class
+        {
+            string rt = "";
+            foreach (var t in en)
+            {
+                rt += t.ToString() + separator;
+            }
+            return rt;
+        }
     }
 }
 

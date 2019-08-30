@@ -58,7 +58,7 @@ namespace ParserFramework.Expression
         {
             var opSymbolToken = info.GetToken("op") as SymbolToken;
             var op = opSymbolToken.Value;
-            Console.WriteLine(op);
+            //Console.WriteLine(op);
 
             float mult = SolveMult(info["Mult"].AsChild);
 
@@ -100,7 +100,7 @@ namespace ParserFramework.Expression
                     Console.WriteLine("Mult has \'" + pair.Key + "\'");
                 }
             }
-            Console.WriteLine("Mult solved to " + product);
+            //Console.WriteLine("Mult solved to " + product);
             return product;
         }
 
@@ -116,7 +116,7 @@ namespace ParserFramework.Expression
         {
             var opSymbolToken = info.GetToken("op") as SymbolToken;
             var op = opSymbolToken.Value;
-            Console.WriteLine(op);
+            //Console.WriteLine(op);
 
             float term = SolveTerm(info["Term"].AsChild);
 
@@ -159,7 +159,7 @@ namespace ParserFramework.Expression
                     Console.WriteLine("Term has \'" + pair.Key + "\'");
                 }
             }
-            Console.WriteLine("Term solved to " + term);
+            //Console.WriteLine("Term solved to " + term);
             return term;
         }
 

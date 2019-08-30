@@ -14,11 +14,20 @@ namespace ParserFramework.ParseRules
                 var info = rule.Execute(list);
                 if (info != null)
                 {
+                    errorInfo.Clear();
                     return info;
                 }
+                else
+                {
+                    errorInfo.AddRange(rule.errorInfo);
+                }
             }
+            foreach (var err in errorInfo)
+            {
+                if (err.rule == null) err.rule = this;
+            }
+            Error = true;
             return null;
         }
-
     }
 }

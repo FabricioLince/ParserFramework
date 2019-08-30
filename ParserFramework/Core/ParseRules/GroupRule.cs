@@ -30,13 +30,29 @@ namespace ParserFramework.ParseRules
             {
                 var rule = ruleF();
                 var info = rule.Execute(list);
-                if (info == null) return null; // if it's null it's an error
+
+                //if(rule.kind != Kind.Optional)
+                {
+                    errorInfo.AddRange(rule.errorInfo);
+                    foreach (var err in errorInfo)
+                    {
+                        if (err.rule == null) err.rule = this;
+                    }
+                }
+
+                if (info == null) // if it's null it's an error
+                {
+                    Error = true;
+                    if (!allInfo.IsEmpty)
+                    {
+                    }
+                    return null; 
+                }
 
                 if (info.IsEmpty) continue; // if it's empty don't put it on the info
 
                 /**/
                 // if only has one token child, put token child on info
-                
                 if (!(rule is GroupRule) && info.info.Count == 1)
                 {
                     var tokenInfo = info.info.First().Value.AsTokenInfo;
@@ -53,10 +69,7 @@ namespace ParserFramework.ParseRules
                 }
                 /**/
 
-
                 var name = rule.name ?? "nameless " + rule.GetType().Name;
-
-                
 
                 while (allInfo.info.ContainsKey(name))
                 {
@@ -65,10 +78,8 @@ namespace ParserFramework.ParseRules
 
                 if (rule is GroupRule)
                 {
-                    //name += "_G";
                     if (info.info.Count == 1)
                     {
-                        //name += "1(" + info.info.First().Key + ")";
                         if (name == info.info.First().Key)
                         {
                             allInfo.Add(name, info.info.First().Value.AsChild);

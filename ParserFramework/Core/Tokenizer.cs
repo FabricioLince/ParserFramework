@@ -26,6 +26,8 @@ namespace ParserFramework
         public bool EOF => Index >= buffer.Length;
         public string Text { get; private set; }
 
+        int lineNumber, collumnNumber = 0;
+
         public Dictionary<Regex, Func<Match, Token>> rules = new Dictionary<Regex, Func<Match, Token>>();
 
         public Tokenizer(TextReader reader)
@@ -39,8 +41,15 @@ namespace ParserFramework
             while (!EOF && char.IsWhiteSpace(CurrentChar))
             {
                 Index++;
+
+                collumnNumber++;
+                if (CurrentChar == '\n')
+                {
+                    lineNumber++;
+                    collumnNumber = 0;
+                }
             }
-            if (EOF) return Token.EOF;
+            if (EOF) return Construct(Token.EOF);
 
             Match bestMatch = null;
             Func<Match, Token> bestFunc = null;
@@ -68,19 +77,30 @@ namespace ParserFramework
             if (bestMatch != null)
             {
                 Index += bestMatch.Length;
-                return bestFunc(bestMatch);
+
+                return Construct(bestFunc(bestMatch), bestMatch.Length);
             }
             var chara = ' ';
             if (char.IsSymbol(CurrentChar) || char.IsPunctuation(CurrentChar))
             {
                 chara = CurrentChar;
                 Index += 1;
-                return new SymbolToken(chara);
+
+                return Construct(new SymbolToken(chara));
             }
 
             chara = CurrentChar;
             Index += 1;
-            return Token.UNKNOWN;
+
+            return Construct(Token.UNKNOWN);
+        }
+
+        Token Construct(Token token, int skip = 1)
+        {
+            token.lineNumber = lineNumber;
+            token.collumnNumber = collumnNumber;
+            collumnNumber += skip;
+            return token;
         }
     }
 

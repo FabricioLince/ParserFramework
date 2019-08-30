@@ -41,8 +41,9 @@ namespace ParserFramework
                 list.Add(token);
                 token = tokenizer.NextToken();
             }
-            //Console.WriteLine("Adding " + token);
+            //System.Console.WriteLine("Adding " + token);
             list.Add(token);
+            list.Add(tokenizer.NextToken()); // adding EOF
         }
 
         public TokenT Get<TokenT>() where TokenT : Token
@@ -54,6 +55,16 @@ namespace ParserFramework
             }
             var rt = Current as TokenT;
             MoveNext();
+            return rt;
+        }
+
+        public override string ToString()
+        {
+            string rt = "";
+            foreach(var t in this)
+            {
+                rt += t.ToString() + "\n";
+            }
             return rt;
         }
     }

@@ -8,35 +8,36 @@ using System.Text.RegularExpressions;
 
 namespace ParserFramework
 {
+    using N = Equation;
+
     class Program
     {
         static void Main(string[] args)
         {
-            var input = "3*(2";
+            var input = "x=12-x";
 
             TokenList list = Expression.Parser.DefaultTokenList(input);
-            var rule = Expression.Parser.AdditionRule;
+            var rule = N.Parser.Main;
 
             var info = rule.Execute(list);
             if (info == null) Console.WriteLine("not an " + rule.name);
 
-            var error = "";
-            for (int i = 0; i < rule.errorInfo.Count; i++)
+            if (list.Current.kind != Token.Kind.EOF || rule.Error)
             {
-                error += rule.errorInfo[i].ToString();
-            }
-            bool bad = rule.errorInfo.Any(err => err.tokenGot.kind == Token.Kind.EOF);
-            //if (list.Current.kind != Token.Kind.EOF || rule.Error || bad)
-            {
-                Console.WriteLine("Error Status: " + rule.Error);
-                Console.WriteLine("Stopped on " + list.Current);
+                Console.WriteLine("Stopped on " + list.Current + " " +list.Current.Position);
+
+                var error = "";
+                for (int i = 0; i < rule.errorInfo.Count; i++)
+                {
+                    error += rule.errorInfo[i].ToString();
+                }
                 Console.WriteLine("ERROR:\n" + error);
             }
 
             Console.WriteLine(info);
             try
             {
-                Expression.Solver.TrySolve(input, out float result);
+                N.Solver.TrySolve(input, out float result);
                 Console.WriteLine("result = " + result);
             }
             catch (ArgumentException) { }
@@ -140,6 +141,16 @@ namespace ParserFramework
             foreach (var t in en)
             {
                 rt += t.ToString() + separator;
+            }
+            return rt;
+        }
+
+        public static string Repeat(this string str, int times)
+        {
+            string rt = "";
+            for (int i = 0; i < times; i++)
+            {
+                rt += str;
             }
             return rt;
         }

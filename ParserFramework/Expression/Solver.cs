@@ -50,7 +50,7 @@ namespace ParserFramework.Expression
         {
             foreach (var pair in info.info)
             {
-                sumSoFar = SolveAddOperand(sumSoFar, pair.Value.AsChild.FirstInfo.AsChild);
+                sumSoFar = SolveAddOperand(sumSoFar, pair.Value.AsChild);
             }
             return sumSoFar;
         }
@@ -108,7 +108,7 @@ namespace ParserFramework.Expression
         {
             foreach (var pair in info.info)
             {
-                sumSoFar = SolveMultOperand(sumSoFar, pair.Value.AsChild.FirstInfo.AsChild);
+                sumSoFar = SolveMultOperand(sumSoFar, pair.Value.AsChild);
             }
             return sumSoFar;
         }

@@ -39,12 +39,29 @@ namespace ParserFramework.ParseRules
             {
                 int childNo = 1;
                 var allInfo = new ParsingInfo();
-                allInfo.Add("child0", info);
+                var child = allInfo.Add("child0", new ParsingInfo());
+
+                foreach (var c in info.FirstInfo.AsChild.info)
+                {
+                    if(c.Value.AsChild != null)
+                        child.AsChild.Add(c.Key, c.Value.AsChild);
+                    else
+                        child.AsChild.Add(c.Key, c.Value.AsToken);
+                }
 
                 var otherInfo = Parse(list);
                 while (otherInfo != null)
                 {
-                    allInfo.Add("child" + childNo, otherInfo);
+                    child = allInfo.Add("child" + childNo, new ParsingInfo());
+
+                    foreach (var c in otherInfo.FirstInfo.AsChild.info)
+                    {
+                        if (c.Value.AsChild != null)
+                            child.AsChild.Add(c.Key, c.Value.AsChild);
+                        else
+                            child.AsChild.Add(c.Key, c.Value.AsToken);
+                    }
+
                     childNo++;
                     otherInfo = Parse(list);
                 }

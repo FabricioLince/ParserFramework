@@ -25,6 +25,7 @@ namespace ParserFramework.ParseRules
             var rt = new ParsingInfo();
             var allInfo = new ParsingInfo();
             rt.Add(this.name, allInfo);
+            int index = list.index;
 
             foreach (var ruleF in rulesF)
             {
@@ -46,6 +47,7 @@ namespace ParserFramework.ParseRules
                     if (!allInfo.IsEmpty)
                     {
                     }
+                    list.index = index;
                     return null; 
                 }
 

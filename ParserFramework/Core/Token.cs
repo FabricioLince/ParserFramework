@@ -41,11 +41,19 @@
     public abstract class NumberToken : Token
     {
         protected NumberToken(Kind k) : base(k) { }
+        public float Value
+        {
+            get
+            {
+                if (this is IntToken i) return i.Value;
+                return (this as FloatToken).Value;
+            }
+        }
     }
 
     public class IntToken : NumberToken
     {
-        public int Value { get; protected set; }
+        public new int Value { get; protected set; }
         public IntToken(int value) : base(Kind.INT)
         {
             this.Value = value;
@@ -57,7 +65,7 @@
     }
     public class FloatToken : NumberToken
     {
-        public float Value { get; protected set; }
+        public new float Value { get; protected set; }
         public FloatToken(float value) : base(Kind.FLOAT)
         {
             this.Value = value;

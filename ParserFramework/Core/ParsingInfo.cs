@@ -14,23 +14,22 @@ namespace ParserFramework
         static int tab = 0;
         static string Tabs()
         {
-            string rt = "";
-            for (int i = 0; i < tab; i++)
-            {
-                rt += "\t";
-            }
-            return rt;
+            return "    ".Repeat(tab);
         }
 
-        public void Add(string name, Token token)
+        public TokenInfo Add(string name, Token token)
         {
             if (name == null) throw new ArgumentException("name can't be null");
-            info.Add(name, new TokenInfo() { name = name, token = token });
+            var tokenInfo = new TokenInfo() { name = name, token = token };
+            info.Add(name, tokenInfo);
+            return tokenInfo;
         }
-        public void Add(string name, ParsingInfo child)
+        public ChildInfo Add(string name, ParsingInfo child)
         {
             if (name == null) throw new ArgumentException("name can't be null");
-            info.Add(name, new ChildInfo() { name = name, child = child });
+            var childInfo = new ChildInfo() { name = name, child = child };
+            info.Add(name, childInfo);
+            return childInfo;
         }
 
         public Token GetToken(string name)
@@ -53,6 +52,7 @@ namespace ParserFramework
             get { return info[name]; }
             set { info[name] = value; }
         }
+        public Info Get(string name) { return info.ContainsKey(name) ? info[name] : null; }
 
         public override string ToString()
         {
@@ -68,7 +68,7 @@ namespace ParserFramework
                     rt += Tabs() + pair.Key + ":" + pair.Value.ToString() + "\n";
             }
 
-            return rt;
+            return rt.Substring(0, rt.Length - 1); // remove last '\n'
         }
 
         public abstract class Info

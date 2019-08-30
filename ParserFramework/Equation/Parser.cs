@@ -1,17 +1,30 @@
-﻿using ParserFramework.Core;
-using ParserFramework.ParseRules;
+﻿using ParserFramework.ParseRules;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
-namespace ParserFramework.Expression
+namespace ParserFramework.Equation
 {
     public class Parser
     {
-        public static ParseRule Main => AdditionRule;
+        public static ParseRule Main => Equation;
 
-        public static ParseRule AdditionRule => new GroupRule()
+        static ParseRule Equation => new GroupRule
+        {
+            name = "Equation",
+            rules = new List<ParseRule>()
+            {
+                AdditionRule,
+                new SymbolRule("=") { name = "equality" },
+                AdditionRule,
+            }
+        };
+
+        static ParseRule AdditionRule => new GroupRule()
         {
             name = "Add",
             kind = ParseRule.Kind.Mandatory,
@@ -55,6 +68,7 @@ namespace ParserFramework.Expression
             name = "Term",
             possibilities = new List<ParseRule>()
             {
+                XTerm,
                 Number,
                 new GroupRule()
                 {
@@ -70,7 +84,33 @@ namespace ParserFramework.Expression
             }
         };
 
-        public static ParseRule Number => new GroupRule
+        public static ParseRule XTerm => new AlternateRule
+        {
+            name = "XTerm",
+            possibilities = new List<ParseRule>()
+            {
+                new GroupRule()
+                {
+                    name = "XTerm",
+                    rules = new List<ParseRule>()
+                    {
+                        Number,
+                        new IdRule("x"){ name = "var" }
+                    }
+                },
+                new GroupRule()
+                {
+                    name = "XTerm",
+                    rules = new List<ParseRule>()
+                    {
+                        new SymbolRule("+", "-"){ name = "signal", kind = ParseRule.Kind.Optional},
+                        new IdRule("x"){ name = "var" }
+                    }
+                }
+            }
+        };
+
+        static ParseRule Number => new GroupRule
         {
             name = "Number",
             rules = new List<ParseRule>()
@@ -91,3 +131,4 @@ namespace ParserFramework.Expression
         }
     }
 }
+

@@ -166,12 +166,6 @@ namespace ParserFramework.Expression
         public static float SolveSubExpr(ParsingInfo info)
         {
             return SolveAddition(info.FirstInfo.AsChild);
-
-            foreach (var pair in info.info)
-            {
-                Console.WriteLine("sub_expr has \'" + pair.Key + "\'");
-            }
-            return 0;
         }
 
         public static float SolveNumber(ParsingInfo numberInfo)

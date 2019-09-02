@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ParserFramework.ParseRules;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace ParserFramework.Equation
     {
         internal static bool TrySolve(string input, out float result)
         {
+            input = Expander.Expand(input);
             var list = Parser.DefaultTokenList(input);
             var expr = Parser.Main.Execute(list);
             if (expr != null)
@@ -39,11 +41,13 @@ namespace ParserFramework.Equation
         }
         static void SolveEquation(ParsingInfo info)
         {
+            SolveMultiplications(info);
+
             terms.Clear();
             xTerms.Clear();
             foreach (var pair in info.info)
             {
-                if(pair.Key=="Add")
+                if (pair.Key == "Add")
                     AddTermsOf(pair.Value.AsChild, Term.Side.Left);
                 else
                     AddTermsOf(pair.Value.AsChild, Term.Side.Right);
@@ -62,7 +66,39 @@ namespace ParserFramework.Equation
             Console.WriteLine(lhs + "x = " + rhs);
             float x = rhs / lhs;
             Console.WriteLine("x = " + x);
+        }
 
+        private static void SolveMultiplications(ParsingInfo info)
+        {
+            if (info == null) return;
+
+            ParsingInfo termInfo = null;
+
+            foreach (var pair in info.info)
+            {
+                if (pair.Key == "Term")
+                {
+                    termInfo = pair.Value.AsChild;
+                }
+                if (pair.Key == "mult_op")
+                {
+                    Console.WriteLine("Mult found " + (termInfo!=null ? "with term" : "NO term"));
+                    foreach(var childPair in pair.Value.AsChild.info)
+                        SolveMult(termInfo, childPair.Value.AsChild);
+                }
+                else
+                {
+                    SolveMultiplications(pair.Value.AsChild);
+                }
+            }
+        }
+
+        static void SolveMult(ParsingInfo term, ParsingInfo mult_op)
+        {
+            foreach (var pair in mult_op.info)
+            {
+                Console.WriteLine("mult_op has " + pair.Key);
+            }
         }
 
         private static void AddTermsOf(ParsingInfo info, Term.Side side)

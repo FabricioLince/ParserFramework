@@ -14,7 +14,10 @@ namespace ParserFramework
     {
         static void Main(string[] args)
         {
-            var input = "x=12-x";
+            var input = "2*x=12";
+
+            input = Equation.Expander.Expand(input);
+            Console.WriteLine(input);
 
             TokenList list = Expression.Parser.DefaultTokenList(input);
             var rule = N.Parser.Main;

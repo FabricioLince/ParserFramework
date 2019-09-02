@@ -71,7 +71,8 @@ namespace ParserFramework.ParseRules
                 }
                 /**/
 
-                var name = rule.name ?? "nameless " + rule.GetType().Name;
+                var realName = rule.name ?? "nameless " + rule.GetType().Name;
+                var name = realName;
 
                 while (allInfo.info.ContainsKey(name))
                 {
@@ -82,7 +83,7 @@ namespace ParserFramework.ParseRules
                 {
                     if (info.info.Count == 1)
                     {
-                        if (name == info.info.First().Key)
+                        if (realName == info.info.First().Key)
                         {
                             allInfo.Add(name, info.info.First().Value.AsChild);
                             continue;

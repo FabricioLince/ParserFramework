@@ -40,14 +40,14 @@ namespace ParserFramework
         {
             while (!EOF && char.IsWhiteSpace(CurrentChar))
             {
-                Index++;
-
                 collumnNumber++;
                 if (CurrentChar == '\n')
                 {
                     lineNumber++;
                     collumnNumber = 0;
                 }
+
+                Index++;
             }
             if (EOF) return Construct(Token.EOF);
 

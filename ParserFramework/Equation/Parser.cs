@@ -1,134 +1,296 @@
-﻿using ParserFramework.ParseRules;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ParserFramework.Equation
 {
     public class Parser
     {
-        public static ParseRule Main => Equation;
-
-        static ParseRule Equation => new GroupRule
+        public static Equation Parse(string input)
         {
-            name = "Equation",
-            rules = new List<ParseRule>()
+            var info = Rules.Main.Execute(Rules.DefaultTokenList(input));
+            if (info == null) return null;
+            //Console.WriteLine(info);
+            return CreateEquation(info);
+        }
+
+        static Equation CreateEquation(ParsingInfo info)
+        {
+            if (info.FirstInfo.name == "Equation")
             {
-                AdditionRule,
-                new SymbolRule("=") { name = "equality" },
-                AdditionRule,
+                return CreateEquation(info.FirstInfo.AsChild);
             }
-        };
+            Equation eq = new Equation();
 
-        static ParseRule AdditionRule => new GroupRule()
-        {
-            name = "Add",
-            kind = ParseRule.Kind.Mandatory,
-            rules = new List<ParseRule>()
+            foreach (var pair in info)
             {
-                MultiplicationRule,
-                new GroupRule()
+                if (pair.Key == "Add")
                 {
-                    name = "add_op",
-                    kind = ParseRule.Kind.Multiple,
-                    rules = new List<ParseRule>()
+                    eq.lhs = CreateAdd(pair.Value.AsChild);
+                }
+                else if (pair.Key == "Add_")
+                {
+                    eq.rhs = CreateAdd(pair.Value.AsChild);
+                }
+                else if (pair.Key == "equality") { }
+                else
+                { Console.WriteLine("Equation has '" + pair.Key + "'"); }
+            }
+
+            return eq;
+        }
+
+        static Add CreateAdd(ParsingInfo info)
+        {
+            Add add = new Add();
+            foreach (var pair in info)
+            {
+                if (pair.Key == "Mult")
+                {
+                    add.mult = CreateMult(pair.Value.AsChild);
+                }
+                else if (pair.Key == "add_op")
+                {
+                    foreach (var child in pair.Value.AsChild)
                     {
-                        new SymbolRule("+", "-") { name = "op" },
-                        MultiplicationRule,
+                        add.addOp.Add(CreateAddOp(child.Value.AsChild));
                     }
                 }
+                else Console.WriteLine("Add has '" + pair.Key + "'");
             }
-        };
+            return add;
+        }
 
-        public static ParseRule MultiplicationRule => new GroupRule
+        static AddOp CreateAddOp(ParsingInfo info)
         {
-            name = "Mult",
-            rules = new List<ParseRule>()
+            AddOp op = new AddOp();
+            foreach(var pair in info)
             {
-                Term,
-                new GroupRule()
+                if(pair.Key == "op")
                 {
-                    name = "mult_op",
-                    kind = ParseRule.Kind.Multiple,
-                    rules = new List<ParseRule>()
+                    var token = pair.Value.AsToken as SymbolToken;
+                    op.operatorSymbol = token.Value;
+                }
+                else if(pair.Key=="Mult")
+                {
+                    op.mult = CreateMult(pair.Value.AsChild);
+                }
+                else Console.WriteLine("AddOp has '" + pair.Key + "'");
+            }
+            return op;
+        }
+
+        static Mult CreateMult(ParsingInfo info)
+        {
+            Mult mult = new Mult();
+            foreach (var pair in info)
+            {
+                if(pair.Key == "Term")
+                {
+                    mult.term = CreateTerm(pair.Value.AsChild);
+                }
+                else if(pair.Key == "mult_op")
+                {
+                    foreach (var child in pair.Value.AsChild)
                     {
-                        new SymbolRule("*", "/") { name = "op" },
-                        Term
+                        mult.multOp.Add(CreateMultOp(child.Value.AsChild));
                     }
                 }
+                else Console.WriteLine("Mult has '" + pair.Key + "'");
             }
-        };
+            return mult;
+        }
 
-        public static ParseRule Term => new AlternateRule
+        static MultOp CreateMultOp(ParsingInfo info)
         {
-            name = "Term",
-            possibilities = new List<ParseRule>()
+            MultOp op = new MultOp();
+            foreach (var pair in info)
             {
-                XTerm,
-                Number,
-                new GroupRule()
+                if(pair.Key == "op")
                 {
-                    name = "sub_expr",
-                    rulesF = new List<Func<ParseRule>>()
-                    {
-                        () => new SymbolRule("+", "-") { name = "signal", kind = ParseRule.Kind.Optional },
-                        () => new SymbolRule("("){ ignore=true },
-                        () => AdditionRule,
-                        () => new SymbolRule(")"){ ignore=true },
-                    }
+                    var symbolToken = pair.Value.AsToken as SymbolToken;
+                    op.operatorSymbol = symbolToken.Value;
                 }
-            }
-        };
-
-        public static ParseRule XTerm => new AlternateRule
-        {
-            name = "XTerm",
-            possibilities = new List<ParseRule>()
-            {
-                new GroupRule()
+                else if(pair.Key=="Term")
                 {
-                    name = "XTerm",
-                    rules = new List<ParseRule>()
-                    {
-                        Number,
-                        new IdRule("x"){ name = "var" }
-                    }
-                },
-                new GroupRule()
-                {
-                    name = "XTerm",
-                    rules = new List<ParseRule>()
-                    {
-                        new SymbolRule("+", "-"){ name = "signal", kind = ParseRule.Kind.Optional},
-                        new IdRule("x"){ name = "var" }
-                    }
+                    op.term = CreateTerm(pair.Value.AsChild);
                 }
+                else Console.WriteLine("Mult has '" + pair.Key + "'");
             }
-        };
+            return op;
+        }
 
-        static ParseRule Number => new GroupRule
+        static Term CreateTerm(ParsingInfo info)
         {
-            name = "Number",
-            rules = new List<ParseRule>()
+            Term term = new Number() { value = 1337 };
+            foreach (var pair in info)
             {
-                new SymbolRule("+", "-") { name = "signal", kind = ParseRule.Kind.Optional },
-                new NumberRule() { name = "value" }
+                if(pair.Key == "Number")
+                {
+                    return CreateNumber(pair.Value.AsChild);
+                }
+                else if(pair.Key == "XTerm")
+                {
+                    return CreateXTerm(pair.Value.AsChild);
+                }
+                else if(pair.Key=="sub_expr")
+                {
+                    return CreateSubExpr(pair.Value.AsChild);
+                }
+                else Console.WriteLine("Term has '" + pair.Key + "'");
             }
-        };
+            return term;
+        }
 
-        public static TokenList DefaultTokenList(string input)
+        static SubExpr CreateSubExpr(ParsingInfo info)
         {
-            Tokenizer tokenizer = new Tokenizer(new StringReader(input));
-            tokenizer.rules.Add(new Regex(@"^([0-9]+)"), m => new IntToken(int.Parse(m.Value)));
-            tokenizer.rules.Add(new Regex(@"^([0-9]+(?:\.[0-9]+)?)"), m => new FloatToken(float.Parse(m.Value.Replace('.', ','))));
-            tokenizer.rules.Add(new Regex(@"^([a-z]+)"), m => new IdToken(m.Value));
+            SubExpr expr = new SubExpr();
+            foreach (var pair in info)
+            {
+                if (pair.Key == "Add")
+                {
+                    expr.add = CreateAdd(pair.Value.AsChild);
+                }
+                else if(pair.Key == "signal")
+                {
+                    var token = pair.Value.AsToken as SymbolToken;
+                    expr.signal = token.Value;
+                }
+                else Console.WriteLine("SubExpr has '" + pair.Key + "'");
+            }
+            return expr;
+        }
 
-            return new TokenList(tokenizer);
+        static XTerm CreateXTerm(ParsingInfo info)
+        {
+            var xTerm = new XTerm() { value = 1 };
+            var signal = "";
+            foreach (var pair in info)
+            {
+                if (pair.Key == "Number")
+                {
+                    var number = CreateNumber(pair.Value.AsChild);
+                    xTerm.value = number.value;
+                }
+                else if(pair.Key=="signal")
+                {
+                    var token = pair.Value.AsToken as SymbolToken;
+                    signal = token.Value;
+                }
+                else if (pair.Key == "var") { }
+                else Console.WriteLine("XTerm has '" + pair.Key + "'");
+            }
+            if (signal == "-") xTerm.value *= -1;
+            return xTerm;
+        }
+
+        static Number CreateNumber(ParsingInfo info)
+        {
+            var number = new Number();
+            var signal = "";
+            foreach (var pair in info)
+            {
+                if(pair.Key == "value")
+                {
+                    var valueToken = pair.Value.AsToken as NumberToken;
+                    number.value = valueToken.Value;
+                }
+                else if (pair.Key == "signal")
+                {
+                    var token = pair.Value.AsToken as SymbolToken;
+                    signal = token.Value;
+                }
+                else Console.WriteLine("Number has '" + pair.Key + "'");
+            }
+            if (signal == "-") number.value *= -1;
+            return number;
+        }
+    }
+
+    public class Equation
+    {
+        public Add lhs;
+        public Add rhs;
+        public override string ToString()
+        {
+            return lhs.ToString() + " = " + rhs.ToString();
+        }
+    }
+
+    public abstract class Term { }
+    public class Number : Term
+    {
+        public float value;
+        public override string ToString()
+        {
+            return value.ToString();
+        }
+    }
+    public class XTerm : Term
+    {
+        public float value;
+        public override string ToString()
+        {
+            return value + "x";
+        }
+    }
+    public class SubExpr : Term
+    {
+        public string signal;
+        public Add add;
+        public override string ToString()
+        {
+            if (signal != null) return signal + "(" + add.ToString() + ")";
+
+            return "(" + add.ToString() + ")";
+        }
+    }
+    public class Mult
+    {
+        public Term term;
+        public List<MultOp> multOp = new List<MultOp>();
+        public override string ToString()
+        {
+            string rt = term.ToString();
+            foreach (var op in multOp)
+            {
+                rt += op.ToString();
+            }
+            return rt;
+        }
+    }
+    public class MultOp
+    {
+        public string operatorSymbol;
+        public Term term;
+        public override string ToString()
+        {
+            return operatorSymbol + term.ToString();
+        }
+    }
+    public class Add
+    {
+        public Mult mult;
+        public List<AddOp> addOp = new List<AddOp>();
+        public override string ToString()
+        {
+            string rt = mult.ToString();
+            foreach (var op in addOp)
+            {
+                rt += op.ToString();
+            }
+            return rt;
+        }
+    }
+    public class AddOp
+    {
+        public string operatorSymbol;
+        public Mult mult;
+        public override string ToString()
+        {
+            return operatorSymbol + "" + mult.ToString();
         }
     }
 }
-

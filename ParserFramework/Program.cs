@@ -1,4 +1,5 @@
 ﻿using ParserFramework.Core;
+using ParserFramework.Equation;
 using ParserFramework.ParseRules;
 using System;
 using System.Collections.Generic;
@@ -6,13 +7,28 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
+class MainClass
+{
+    public static void Main(string[] args)
+    {
+        string input = "1--(-2)=(-2x--x)*2";
+        Console.WriteLine(input);
+        if (Solver.TrySolve(input, out float result))
+        {
+            Console.WriteLine("x = " + result);
+        }
+
+        Console.ReadKey(true);
+    }
+}
+
 namespace ParserFramework
 {
     using N = Equation;
 
     class Program
     {
-        static void Main(string[] args)
+        static void Main2(string[] args)
         {
             var input = "2*x=12";
 
@@ -20,7 +36,7 @@ namespace ParserFramework
             Console.WriteLine(input);
 
             TokenList list = Expression.Parser.DefaultTokenList(input);
-            var rule = N.Parser.Main;
+            var rule = N.Rules.Main;
 
             var info = rule.Execute(list);
             if (info == null) Console.WriteLine("not an " + rule.name);

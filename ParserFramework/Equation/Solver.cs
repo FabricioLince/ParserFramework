@@ -11,147 +11,158 @@ namespace ParserFramework.Equation
     {
         internal static bool TrySolve(string input, out float result)
         {
-            input = Expander.Expand(input);
-            var list = Parser.DefaultTokenList(input);
-            var expr = Parser.Main.Execute(list);
-            if (expr != null)
+            var equation = Parser.Parse(input);
+
+            if (equation != null)
             {
-                result = Solve(expr);
+                Console.WriteLine(equation);
+                result = Solve(equation);
                 return true;
             }
+
             result = 0;
             return false;
         }
 
-        class Term
+        public static float Solve(Equation equation)
         {
-            public float value = 0;
-            public enum Side { Left, Right }
-        }
-        static List<Term> terms = new List<Term>();
-        static List<Term> xTerms = new List<Term>();
+            MixedTerm lhs = Solve(equation.lhs);
+            MixedTerm rhs = Solve(equation.rhs);
 
-        static float Solve(ParsingInfo info)
-        {
-            if (info.FirstInfo.name == "Equation")
-            {
-                SolveEquation(info.FirstInfo.AsChild);
-            }
-            return 0;
-        }
-        static void SolveEquation(ParsingInfo info)
-        {
-            SolveMultiplications(info);
+            Console.WriteLine(lhs + " = " + rhs);
 
-            terms.Clear();
-            xTerms.Clear();
-            foreach (var pair in info.info)
-            {
-                if (pair.Key == "Add")
-                    AddTermsOf(pair.Value.AsChild, Term.Side.Left);
-                else
-                    AddTermsOf(pair.Value.AsChild, Term.Side.Right);
-            }
-            Console.WriteLine(xTerms.ReduceToString(t=>t.value.ToString(), "\n"));
-            float lhs = 0;
-            foreach(var term in xTerms)
-            {
-                lhs += term.value;
-            }
-            float rhs = 0;
-            foreach (var term in terms)
-            {
-                rhs += term.value;
-            }
-            Console.WriteLine(lhs + "x = " + rhs);
-            float x = rhs / lhs;
-            Console.WriteLine("x = " + x);
+            float xTerms = lhs.xValue - rhs.xValue;
+            float nTerms = rhs.pureValue - lhs.pureValue;
+
+            Console.WriteLine(xTerms + "x = " + nTerms);
+            return nTerms / xTerms;
         }
 
-        private static void SolveMultiplications(ParsingInfo info)
+        public static MixedTerm Solve(XTerm xTerm) { return new MixedTerm(xTerm.value, 0); }
+        public static MixedTerm Solve(Number number) { return new MixedTerm(0, number.value); }
+        public static MixedTerm Solve(SubExpr subExpr)
         {
-            if (info == null) return;
-
-            ParsingInfo termInfo = null;
-
-            foreach (var pair in info.info)
+            var rt = Solve(subExpr.add);
+            if (subExpr.signal != null && subExpr.signal == "-")
             {
-                if (pair.Key == "Term")
+                rt *= -1;
+            }
+            return rt;
+        }
+        public static MixedTerm Solve(Term term)
+        {
+            if (term is Number n) return Solve(n);
+            if (term is XTerm x) return Solve(x);
+            if (term is SubExpr s) return Solve(s);
+            throw new Exception("Unkown Term");
+        }
+        public static MixedTerm Solve(Mult mult)
+        {
+            MixedTerm result = Solve(mult.term);
+            foreach (var multOp in mult.multOp)
+            {
+                switch (multOp.operatorSymbol)
                 {
-                    termInfo = pair.Value.AsChild;
-                }
-                if (pair.Key == "mult_op")
-                {
-                    Console.WriteLine("Mult found " + (termInfo!=null ? "with term" : "NO term"));
-                    foreach(var childPair in pair.Value.AsChild.info)
-                        SolveMult(termInfo, childPair.Value.AsChild);
-                }
-                else
-                {
-                    SolveMultiplications(pair.Value.AsChild);
+                    case "*":
+                        result *= Solve(multOp.term);
+                        break;
+                    case "/":
+                        result /= Solve(multOp.term);
+                        break;
                 }
             }
+            return result;
         }
-
-        static void SolveMult(ParsingInfo term, ParsingInfo mult_op)
+        public static MixedTerm Solve(Add add)
         {
-            foreach (var pair in mult_op.info)
+            MixedTerm result = Solve(add.mult);
+            foreach (var addOp in add.addOp)
             {
-                Console.WriteLine("mult_op has " + pair.Key);
-            }
-        }
-
-        private static void AddTermsOf(ParsingInfo info, Term.Side side)
-        {
-            if (info == null) return;
-            foreach (var pair in info.info)
-            {
-                //Console.WriteLine("Adding has \'" + pair.Key + "\'");
-
-                if (pair.Key == "Term")
+                switch (addOp.operatorSymbol)
                 {
-                    var termInfo = pair.Value.AsChild.FirstInfo.AsChild;
-                    //Console.WriteLine("\tAdding " + termInfo);
-                    var term = new Term();
-                    var number = termInfo.Get("Number");
-                    var ident = termInfo.Get("var");
-                    if (number != null || ident != null)
-                    {
-                        if (number != null)
-                        {
-                            var token = number.AsChild.GetToken("value") as NumberToken;
-                            term.value = token.Value;
-
-                            if (number.AsChild.GetToken("signal") is SymbolToken signToken && signToken.Value == "-")
-                                term.value *= -1;
-                        }
-                        else term.value = 1;
-
-                        if (termInfo.GetToken("signal") is SymbolToken signT && signT.Value == "-")
-                            term.value *= -1;
-
-                        if (side == Term.Side.Right) term.value *= -1;
-
-                        xTerms.Add(term);
-                    }
-                    else
-                    {
-                        var token = termInfo.GetToken("value") as NumberToken;
-                        term.value = token.Value;
-
-                        if (termInfo.GetToken("signal") is SymbolToken signToken && signToken.Value == "-")
-                            term.value *= -1;
-
-                        if (side == Term.Side.Left) term.value *= -1;
-
-                        terms.Add(term);
-                    }
-
-                    Console.WriteLine("ADDED " + term.value + (number != null ? "x" : ""));
-                    
+                    case "+":
+                        result += Solve(addOp.mult);
+                        break;
+                    case "-":
+                        result -= Solve(addOp.mult);
+                        break;
+                    default:
+                        throw new Exception("Invalid Symbol for Add");
                 }
+            }
+            return result;
+        }
 
-                if (pair.Value.AsChild != null) AddTermsOf(pair.Value.AsChild, side);
+        public class MixedTerm
+        {
+            public float xValue;
+            public float pureValue;
+            public MixedTerm(float a = 0, float b = 0) { xValue = a; pureValue = b; }
+
+            public static MixedTerm operator +(MixedTerm a, MixedTerm b)
+            {
+                return new MixedTerm()
+                {
+                    xValue = a.xValue + b.xValue,
+                    pureValue = a.pureValue + b.pureValue
+                };
+            }
+            public static MixedTerm operator -(MixedTerm a, MixedTerm b)
+            {
+                return new MixedTerm()
+                {
+                    xValue = a.xValue - b.xValue,
+                    pureValue = a.pureValue - b.pureValue
+                };
+            }
+            public static MixedTerm operator *(MixedTerm a, MixedTerm b)
+            {
+                if (a.xValue != 0 && b.xValue != 0)
+                {
+                    throw new Exception("Multiplication between two Xs (" + a + " * " + b + ")");
+                }
+                return new MixedTerm()
+                {
+                    xValue = a.xValue * b.pureValue + a.pureValue * b.xValue,
+                    pureValue = a.pureValue * b.pureValue
+                };
+            }
+            public static MixedTerm operator /(MixedTerm a, MixedTerm b)
+            {
+                MixedTerm ib = new MixedTerm(
+                  b.xValue == 0 ? 0 : 1.0f / b.xValue,
+                  b.pureValue == 0 ? 0 : 1.0f / b.pureValue);
+                return a * ib;
+            }
+            public static MixedTerm operator *(float b, MixedTerm a) => a * b;
+            public static MixedTerm operator *(MixedTerm a, float b)
+            {
+                return new MixedTerm()
+                {
+                    xValue = a.xValue * b,
+                    pureValue = a.pureValue * b
+                };
+            }
+            public static MixedTerm operator /(MixedTerm a, float b)
+            {
+                return new MixedTerm()
+                {
+                    xValue = a.xValue / b,
+                    pureValue = a.pureValue / b
+                };
+            }
+
+            public override string ToString()
+            {
+                if (xValue != 0 && pureValue != 0)
+                    return ForceSignal(xValue) + "x " + ForceSignal(pureValue);
+                if (xValue == 0)
+                    return ForceSignal(pureValue);
+                return ForceSignal(xValue) + "x";
+            }
+            string ForceSignal(float value)
+            {
+                return value < 0 ? value.ToString() : "+" + value;
             }
         }
     }

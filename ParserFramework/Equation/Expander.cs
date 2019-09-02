@@ -11,7 +11,7 @@ namespace ParserFramework.Equation
         public static string Expand(string input)
         {
             TokenList list = Expression.Parser.DefaultTokenList(input);
-            var rule = Parser.Main;
+            var rule = Rules.Main;
 
             var info = rule.Execute(list);
             if (info == null) Console.WriteLine("not an " + rule.name);

@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace ParserFramework
 {
-    public class ParsingInfo
+    public class ParsingInfo : IEnumerable<KeyValuePair<string, ParsingInfo.Info>>
     {
         public static readonly ParsingInfo Empty = new ParsingInfo();
         public bool IsEmpty => info.Count == 0;
@@ -69,6 +70,16 @@ namespace ParserFramework
             }
 
             return rt.Substring(0, rt.Length - 1); // remove last '\n'
+        }
+
+        public IEnumerator<KeyValuePair<string, Info>> GetEnumerator()
+        {
+            return info.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return info.GetEnumerator();
         }
 
         public abstract class Info

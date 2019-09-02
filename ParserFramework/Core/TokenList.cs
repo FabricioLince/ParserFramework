@@ -2,7 +2,6 @@
 
 namespace ParserFramework
 {
-
     public class TokenList : List<Token>
     {
         List<Token> list => this;

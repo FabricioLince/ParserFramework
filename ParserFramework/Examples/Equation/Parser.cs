@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ParserFramework.Core;
 
-namespace ParserFramework.Equation
+namespace ParserFramework.Examples.Equation
 {
     public class Parser
     {

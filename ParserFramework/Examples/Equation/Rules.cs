@@ -1,10 +1,11 @@
-﻿using ParserFramework.ParseRules;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using ParserFramework.Core.ParseRules;
+using ParserFramework.Core;
 
-namespace ParserFramework.Equation
+namespace ParserFramework.Examples.Equation
 {
     public class Rules
     {
@@ -123,6 +124,20 @@ namespace ParserFramework.Equation
             tokenizer.rules.Add(new Regex(@"^([a-z]+)"), m => new IdToken(m.Value));
 
             return new TokenList(tokenizer);
+        }
+
+        public class Exception : System.Exception
+        {
+            public List<ParseErrorInfo> AllErrors { get; private set; } = new List<ParseErrorInfo>();
+            public List<ParseErrorInfo> LastErrors { get; private set; } = new List<ParseErrorInfo>();
+            public ParseRule Rule { get; private set; }
+
+            public Exception(ParseRule rule) : base(rule.Descriptor + " could not be executed on input")
+            {
+                AllErrors.AddRange(rule.errorInfo);
+                LastErrors.AddRange(rule.LastErrors);
+                Rule = rule;
+            }
         }
     }
 }

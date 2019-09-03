@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ParserFramework
+namespace ParserFramework.Core
 {
     public class TokenList : List<Token>
     {

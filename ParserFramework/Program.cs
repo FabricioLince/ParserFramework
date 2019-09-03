@@ -1,6 +1,6 @@
 ﻿using ParserFramework.Core;
-using ParserFramework.Equation;
-using ParserFramework.ParseRules;
+using ParserFramework.Examples.Equation;
+using ParserFramework.Core.ParseRules;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +13,7 @@ namespace ParserFramework
     {
         public static void Main(string[] args)
         {
-            string input = "-2-x=-x12";
+            string input = "-2-2x=-x+12";
             Console.WriteLine(input);
             if (Solver.TrySolve(input, out float result))
             {

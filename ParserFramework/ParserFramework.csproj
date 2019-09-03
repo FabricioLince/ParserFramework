@@ -45,13 +45,13 @@
   <ItemGroup>
     <Compile Include="Core\ParseRules\AlternateRule.cs" />
     <Compile Include="Core\TokenParser.cs" />
-    <Compile Include="Equation\Rules.cs" />
-    <Compile Include="Equation\Parser.cs" />
-    <Compile Include="Equation\Solver.cs" />
-    <Compile Include="Expression\Solver.cs" />
+    <Compile Include="Examples\Equation\Rules.cs" />
+    <Compile Include="Examples\Equation\Parser.cs" />
+    <Compile Include="Examples\Equation\Solver.cs" />
+    <Compile Include="Examples\Expression\Solver.cs" />
     <Compile Include="Core\ParseRules\FunctionRule.cs" />
     <Compile Include="Core\ParseRules\GroupRule.cs" />
-    <Compile Include="Expression\Parser.cs" />
+    <Compile Include="Examples\Expression\Parser.cs" />
     <Compile Include="Core\ParseRules\ParseRule.cs" />
     <Compile Include="Core\ParsingInfo.cs" />
     <Compile Include="Program.cs" />

@@ -1,11 +1,11 @@
 ﻿using ParserFramework.Core;
-using ParserFramework.ParseRules;
+using ParserFramework.Core.ParseRules;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace ParserFramework.Expression
+namespace ParserFramework.Examples.Expression
 {
     public class Parser
     {

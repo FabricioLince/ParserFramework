@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ParserFramework.ParseRules
+namespace ParserFramework.Core.ParseRules
 {
     public abstract class ParseRule
     {

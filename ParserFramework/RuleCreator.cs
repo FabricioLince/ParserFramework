@@ -1,8 +1,8 @@
 ﻿using ParserFramework.Core;
-using ParserFramework.ParseRules;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using ParserFramework.Core.ParseRules;
 
 namespace ParserFramework
 {

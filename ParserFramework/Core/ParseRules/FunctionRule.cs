@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ParserFramework.ParseRules
+namespace ParserFramework.Core.ParseRules
 {
     public class FunctionRule2 : ParseRule
     {

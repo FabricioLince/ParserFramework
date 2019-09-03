@@ -1,4 +1,4 @@
-﻿namespace ParserFramework
+﻿namespace ParserFramework.Core
 {
     public class Token
     {

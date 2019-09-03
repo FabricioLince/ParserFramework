@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ParserFramework.ParseRules
+namespace ParserFramework.Core.ParseRules
 {
     class AlternateRule : ParseRule
     {

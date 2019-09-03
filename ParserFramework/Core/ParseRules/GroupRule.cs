@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ParserFramework.ParseRules
+namespace ParserFramework.Core.ParseRules
 {
     public class GroupRule : ParseRule
     {

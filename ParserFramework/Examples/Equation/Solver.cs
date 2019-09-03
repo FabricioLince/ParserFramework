@@ -1,27 +1,40 @@
-﻿using ParserFramework.ParseRules;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
-namespace ParserFramework.Equation
+namespace ParserFramework.Examples.Equation
 {
     class Solver
     {
         internal static bool TrySolve(string input, out float result, bool consumeWholeInput = true)
         {
-            var equation = Parser.Parse(input, consumeWholeInput);
-
-            if (equation != null)
+            try
             {
-                Console.WriteLine(equation);
-                result = Solve(equation);
+                result = Solve(input, consumeWholeInput);
                 return true;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            catch(Rules.Exception e)
+            {
+                Console.WriteLine(e.Message);
             }
 
             result = 0;
             return false;
+        }
+
+        public static float Solve(string input, bool consumeWholeInput = true)
+        {
+            var equation = Parser.Parse(input, consumeWholeInput);
+
+            if (equation != null)
+            {
+                //Console.WriteLine(equation);
+                return Solve(equation);
+            }
+
+            throw new Rules.Exception(Rules.Equation);
         }
 
         public static float Solve(Equation equation)
@@ -29,12 +42,17 @@ namespace ParserFramework.Equation
             Polinomial lhs = Solve(equation.lhs);
             Polinomial rhs = Solve(equation.rhs);
 
-            Console.WriteLine(lhs + " = " + rhs);
+            //Console.WriteLine(lhs + " = " + rhs);
 
             float xTerms = lhs.xValue - rhs.xValue;
             float nTerms = rhs.pureValue - lhs.pureValue;
 
-            Console.WriteLine(xTerms + "x = " + nTerms);
+            if (xTerms == 0)
+            {
+                throw new Exception("No Xs left on equation");
+            }
+
+            //Console.WriteLine(xTerms + "x = " + nTerms);
             return nTerms / xTerms;
         }
 
@@ -164,6 +182,16 @@ namespace ParserFramework.Equation
             {
                 return value < 0 ? value.ToString() : "+" + value;
             }
+
+            public class Exception : Solver.Exception
+            {
+                public Exception(string message) : base(message) { }
+            }
+        }
+
+        public class Exception : System.Exception
+        {
+            public Exception(string message) : base(message) { }
         }
     }
 }

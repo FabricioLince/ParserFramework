@@ -1,8 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using ParserFramework.Core;
 
-namespace ParserFramework.Expression
+namespace ParserFramework.Examples.Expression
 {
     class Solver
     {

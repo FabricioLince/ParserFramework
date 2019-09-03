@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ParserFramework
+namespace ParserFramework.Core
 {
     public class ParsingInfo : IEnumerable<KeyValuePair<string, ParsingInfo.Info>>
     {

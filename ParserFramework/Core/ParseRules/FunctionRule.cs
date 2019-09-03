@@ -2,10 +2,10 @@
 
 namespace ParserFramework.Core.ParseRules
 {
-    public class FunctionRule2 : ParseRule
+    public class FunctionRule : ParseRule
     {
         public Func<TokenList, ParsingInfo> parsingFunc;
-        public FunctionRule2(Func<TokenList, ParsingInfo> parsingFunc)
+        public FunctionRule(Func<TokenList, ParsingInfo> parsingFunc)
         {
             this.parsingFunc = parsingFunc;
         }

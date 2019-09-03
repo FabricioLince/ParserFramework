@@ -39,11 +39,19 @@ namespace ParserFramework.Examples.Script
         {
             rules = new List<ParseRule>()
             {
-                new IdRule("print"){ignore=true},
-                Expression("expr"),
+                new IdRule("print"){ ignore = true },
+                PrintArg,
             }
         };
-
+        static ParseRule PrintArg => new AlternateRule("arg")
+        {
+            kind = ParseRule.Kind.Multiple,
+            possibilities = new List<ParseRule>()
+            {
+                Expression("expr"),
+                new TokenRule<StringToken>("string"),
+            }
+        };
 
         public class StringToken : Token
         {
@@ -61,12 +69,14 @@ namespace ParserFramework.Examples.Script
         public static TokenList DefaultTokenList(string input)
         {
             Tokenizer tokenizer = new Tokenizer(new StringReader(input));
+            tokenizer.rules.Add(new Regex(@"\'.*\'"), m => new StringToken(m.Value.Substring(1, m.Value.Length - 2)));
+            tokenizer.rules.Add(new Regex("\".*\""), m => new StringToken(m.Value.Substring(1, m.Value.Length - 2)));
+
             tokenizer.rules.Add(new Regex(@"^([0-9]+)"), m => new IntToken(int.Parse(m.Value)));
             tokenizer.rules.Add(new Regex(@"^([0-9]+(?:\.[0-9]+)?)"), m => new FloatToken(float.Parse(m.Value.Replace('.', ','))));
             tokenizer.rules.Add(new Regex(@"^(\w+)"), m => new IdToken(m.Value));
 
-            tokenizer.rules.Add(new Regex(@"\'.*\'"), m => new StringToken(m.Value));
-            tokenizer.rules.Add(new Regex("\".*\""), m => new StringToken(m.Value));
+            
 
 
             TokenList list = new TokenList(tokenizer);

@@ -1,9 +1,6 @@
 ﻿using ParserFramework.Core;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ParserFramework.Examples.Script
 {
@@ -14,7 +11,12 @@ namespace ParserFramework.Examples.Script
             var list = Rules.DefaultTokenList(input);
             var info = Rules.Command.Execute(list);
             Console.WriteLine(info);
-            if (info == null) return null;
+            if (info == null)
+            {
+                Console.WriteLine(list);
+                return null;
+            }
+
             return CreateCommand(info);
         }
         public static Command CreateCommand(ParsingInfo info)
@@ -25,7 +27,7 @@ namespace ParserFramework.Examples.Script
                 {
                     return CreateAttribuition(info);
                 }
-                else if (pair.Key=="Print")
+                else if (pair.Key == "Print")
                 {
                     return CreatePrintCommand(pair.Value.AsChild);
                 }
@@ -66,10 +68,28 @@ namespace ParserFramework.Examples.Script
             PrintCommand cmd = new PrintCommand();
             foreach(var pair in info)
             {
-                if(pair.Key == "expr")
+                if(pair.Key == "arg")
                 {
-                    cmd.expression = CreateExpression(pair.Value.AsChild);
+                    foreach (var child in pair.Value.AsChild)
+                    {
+                        foreach (var item in child.Value.AsChild)
+                        {
+                            if (item.Key == "expr")
+                            {
+                                cmd.ArgList.Add(CreateExpression(item.Value.AsChild));
+                                break;
+                            }
+                            else if (item.Key == "string")
+                            {
+                                var token = item.Value.AsToken as Rules.StringToken;
+                                cmd.ArgList.Add(token.Value);
+                                break;
+                            }
+                            else Console.WriteLine(child.Key + " has '" + item.Key + "'");
+                        }
+                    }
                 }
+                else Console.WriteLine("Print has '" + pair.Key + "'");
             }
             return cmd;
         }
@@ -89,10 +109,25 @@ namespace ParserFramework.Examples.Script
     }
     public class PrintCommand : Command
     {
-        public Expression expression;
+        public class Arg
+        {
+            public Expression expression;
+            public string str;
+            public static implicit operator Arg(string str)
+            {
+                return new Arg() { str = str };
+            }
+            public static implicit operator Arg(Expression exp)
+            {
+                return new Arg() { expression = exp };
+            }
+        }
+        public readonly List<Arg> ArgList = new List<Arg>();
+        
         public override string ToString()
         {
-            return "print " + expression.ToString();
+            return "print " +
+                ArgList.ReduceToString(arg => arg.str != null ? arg.str : arg.expression.ToString(), " ");
         }
     }
 }

@@ -98,10 +98,6 @@ namespace ParserFramework.Examples.Script
                 {
                     return CreateNumber(pair.Value.AsChild);
                 }
-                else if (pair.Key == "XTerm")
-                {
-                    return CreateXTerm(pair.Value.AsChild);
-                }
                 else if (pair.Key == "sub_expr")
                 {
                     return CreateSubExpr(pair.Value.AsChild);
@@ -132,29 +128,6 @@ namespace ParserFramework.Examples.Script
                 else Console.WriteLine("SubExpr has '" + pair.Key + "'");
             }
             return expr;
-        }
-
-        static XTerm CreateXTerm(ParsingInfo info)
-        {
-            var xTerm = new XTerm() { value = 1 };
-            var signal = "";
-            foreach (var pair in info)
-            {
-                if (pair.Key == "Number")
-                {
-                    var number = CreateNumber(pair.Value.AsChild);
-                    xTerm.value = number.value;
-                }
-                else if (pair.Key == "signal")
-                {
-                    var token = pair.Value.AsToken as SymbolToken;
-                    signal = token.Value;
-                }
-                else if (pair.Key == "var") { }
-                else Console.WriteLine("XTerm has '" + pair.Key + "'");
-            }
-            if (signal == "-") xTerm.value *= -1;
-            return xTerm;
         }
 
         static Number CreateNumber(ParsingInfo info)
@@ -214,14 +187,6 @@ namespace ParserFramework.Examples.Script
         public override string ToString()
         {
             return value.ToString();
-        }
-    }
-    public class XTerm : Term
-    {
-        public float value;
-        public override string ToString()
-        {
-            return value + "x";
         }
     }
     public class SubExpr : Term

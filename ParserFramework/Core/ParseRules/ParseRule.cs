@@ -67,35 +67,44 @@ namespace ParserFramework.Core.ParseRules
             {
                 int childNo = 1;
                 var allInfo = new ParsingInfo();
-                var child = allInfo.Add("child0", new ParsingInfo());
-
-                foreach (var c in info.FirstInfo.AsChild.info)
+                ParsingInfo.ChildInfo child;
+                if (this is GroupRule)
                 {
-                    if(c.Value.AsChild != null)
-                        child.AsChild.Add(c.Key, c.Value.AsChild);
-                    else
-                        child.AsChild.Add(c.Key, c.Value.AsToken);
-                }
+                    child = allInfo.Add("child0", new ParsingInfo());
 
-                var otherInfo = Parse(list);
-                while (otherInfo != null)
-                {
-                    child = allInfo.Add("child" + childNo, new ParsingInfo());
-
-                    foreach (var c in otherInfo.FirstInfo.AsChild.info)
+                    foreach (var c in info.FirstInfo.AsChild.info)
                     {
                         if (c.Value.AsChild != null)
                             child.AsChild.Add(c.Key, c.Value.AsChild);
                         else
                             child.AsChild.Add(c.Key, c.Value.AsToken);
                     }
+                }
+                else child = allInfo.Add("child0", info);
+
+                var otherInfo = Parse(list);
+                while (otherInfo != null)
+                {
+                    if (this is GroupRule)
+                    {
+                        child = allInfo.Add("child" + childNo, new ParsingInfo());
+
+                        foreach (var c in otherInfo.FirstInfo.AsChild.info)
+                        {
+                            if (c.Value.AsChild != null)
+                                child.AsChild.Add(c.Key, c.Value.AsChild);
+                            else
+                                child.AsChild.Add(c.Key, c.Value.AsToken);
+                        }
+                    }
+                    else
+                        allInfo.Add("child" + childNo, otherInfo);
 
                     childNo++;
                     otherInfo = Parse(list);
                 }
 
-                //if (childNo > 1)
-                    return ignore ? ParsingInfo.Empty : allInfo;
+                return ignore ? ParsingInfo.Empty : allInfo;
             }
 
             return ignore ? ParsingInfo.Empty : info;

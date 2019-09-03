@@ -1,8 +1,5 @@
-﻿using ParserFramework.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.RegularExpressions;
 
 namespace ParserFramework
 {
@@ -10,45 +7,8 @@ namespace ParserFramework
     {
         public static void Main()
         {
-            while(true)
-            {
-                string input = Console.ReadLine();
-
-                var command = Examples.Script.Parser.Parse(input);
-                Console.WriteLine("Command: " + command);
-            }
+            Examples.Script.Main.Run();
         }
-    }
-    class Program
-    {
-        public class StringToken : Token
-        {
-            public readonly string Value;
-            public StringToken(string value) : base(Kind.CUSTOM)
-            {
-                this.Value = value;
-            }
-            public override string ToString()
-            {
-                return "STRING " + Value;
-            }
-        }
-
-        public static TokenList DefaultTokenList(string input)
-        {
-            Tokenizer tokenizer = new Tokenizer(new StringReader(input));
-            tokenizer.rules.Add(new Regex(@"^([0-9]+)"), m => new IntToken(int.Parse(m.Value)));
-            tokenizer.rules.Add(new Regex(@"^([0-9]+(?:\.[0-9]+)?)"), m => new FloatToken(float.Parse(m.Value.Replace('.', ','))));
-            tokenizer.rules.Add(new Regex(@"^(\w+)"), m => new IdToken(m.Value));
-            
-            tokenizer.rules.Add(new Regex(@"\'.*\'"), m => new StringToken(m.Value));
-            tokenizer.rules.Add(new Regex("\".*\""), m => new StringToken(m.Value));
-
-
-            TokenList list = new TokenList(tokenizer);
-            return list;
-        }
-
     }
 
     public static class Utils

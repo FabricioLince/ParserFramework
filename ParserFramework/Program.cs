@@ -1,110 +1,49 @@
 ﻿using ParserFramework.Core;
-using ParserFramework.Examples.Equation;
-using ParserFramework.Core.ParseRules;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace ParserFramework
 {
     class MainClass
     {
-        public static void Main(string[] args)
+        public static void Main()
         {
-            string input = "-2-2x=-x+12";
-            Console.WriteLine(input);
-            if (Solver.TrySolve(input, out float result))
+            while(true)
             {
-                Console.WriteLine("x = " + result);
-            }
-            else
-            {
-                Console.WriteLine("Couldn't solve '" + input + "'");
+                string input = Console.ReadLine();
 
-                {
-                    Console.WriteLine("Errors:");
-                    Console.WriteLine(Rules.Equation.LastErrors.ReduceToString("\n"));
-                }
+                var command = Examples.Script.Parser.Parse(input);
+                Console.WriteLine("Command: " + command);
             }
-
-            Console.ReadKey(true);
         }
     }
     class Program
     {
-        static string PatternForSymbols(params string[] symbols)
+        public class StringToken : Token
         {
-            string pattern = "^(";
-            for (int i = 0; i < symbols.Length; ++i)
+            public readonly string Value;
+            public StringToken(string value) : base(Kind.CUSTOM)
             {
-                var symbolString = symbols[i];
-                if (symbolString.Length == 1)
-                {
-                    pattern += "\\" + symbolString;
-                }
-                else
-                {
-                    string symbolPattern = "(?:";
-                    foreach (var chara in symbolString)
-                    {
-                        symbolPattern += "\\" + chara;
-
-                    }
-                    pattern += symbolPattern + ")";
-                }
-                if (i < symbols.Length - 1) pattern += "|";
+                this.Value = value;
             }
-            pattern += ")";
-            return pattern;
-            //return new Regex(pattern);
-        }
-
-        public static Regex RegexForSymbols(params string[] symbols)
-        {
-            return new Regex(PatternForSymbols(symbols));
-        }
-
-        public static ParseRule StringRule => new AlternateRule
-        {
-            name = "string",
-            possibilities = new List<ParseRule>()
+            public override string ToString()
             {
-                new GroupRule()
-                {
-                    rules = new List<ParseRule>()
-                    {
-                        new SymbolRule("\"") { ignore = true },
-                        new TokenRule<IdToken>("value"),
-                        new SymbolRule("\"") { ignore = true },
-                    }
-                },
-                new GroupRule()
-                {
-                    rules = new List<ParseRule>()
-                    {
-                        new SymbolRule("'") { ignore = true },
-                        new TokenRule<IdToken>("value"),
-                        new SymbolRule("'") { ignore = true },
-                    }
-                }
+                return "STRING " + Value;
             }
-        };
-
-        public static ParsingInfo String(TokenList list)
-        {
-            //string :: Symbol(") Identifier Symbol(")
-
-            return StringRule.Execute(list);
         }
 
-        static TokenList DefaultTokenList(string input)
+        public static TokenList DefaultTokenList(string input)
         {
             Tokenizer tokenizer = new Tokenizer(new StringReader(input));
             tokenizer.rules.Add(new Regex(@"^([0-9]+)"), m => new IntToken(int.Parse(m.Value)));
             tokenizer.rules.Add(new Regex(@"^([0-9]+(?:\.[0-9]+)?)"), m => new FloatToken(float.Parse(m.Value.Replace('.', ','))));
             tokenizer.rules.Add(new Regex(@"^(\w+)"), m => new IdToken(m.Value));
+            
+            tokenizer.rules.Add(new Regex(@"\'.*\'"), m => new StringToken(m.Value));
+            tokenizer.rules.Add(new Regex("\".*\""), m => new StringToken(m.Value));
+
 
             TokenList list = new TokenList(tokenizer);
             return list;

@@ -6,6 +6,8 @@ namespace ParserFramework.Core.ParseRules
 {
     public class GroupRule : ParseRule
     {
+        public GroupRule(string name = null) { this.name = name ?? "unnamed group rule"; }
+
         public List<ParseRule> rules
         {
             set

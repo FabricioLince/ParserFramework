@@ -14,9 +14,14 @@ namespace ParserFramework.Core.ParseRules
 
         public string Descriptor => GetType().Name + " " + name;
 
-        public List<ParseErrorInfo> errorInfo = new List<ParseErrorInfo>();
+        public List<ParseErrorInfo> errorInfo { get; protected set; } = new List<ParseErrorInfo>();
         public bool Error { get; protected set; } = false;
         public List<ParseErrorInfo> LastErrors { get; private set; } = new List<ParseErrorInfo>();
+
+        protected ParseRule(string name = null)
+        {
+            this.name = name ?? "unnamed rule"; 
+        }
 
         protected void AddChildErrors(List<ParseErrorInfo> childErrors)
         {

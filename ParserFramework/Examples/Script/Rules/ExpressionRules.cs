@@ -1,19 +1,20 @@
-﻿using ParserFramework.Core;
-using ParserFramework.Core.ParseRules;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ParserFramework.Core;
+using ParserFramework.Core.ParseRules;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace ParserFramework.Examples.Expression
+namespace ParserFramework.Examples.Script
 {
-    public class Parser
-    {
-        public static ParseRule Main => AdditionRule;
 
-        public static ParseRule AdditionRule => new GroupRule()
+    partial class Rules
+    {
+        public static ParseRule Expression(string name) => new GroupRule(name)
         {
-            name = "Add",
             kind = ParseRule.Kind.Mandatory,
             rules = new List<ParseRule>()
             {
@@ -56,6 +57,7 @@ namespace ParserFramework.Examples.Expression
             possibilities = new List<ParseRule>()
             {
                 Number,
+                Variable,
                 new GroupRule()
                 {
                     name = "sub_expr",
@@ -63,11 +65,10 @@ namespace ParserFramework.Examples.Expression
                     {
                         () => new SymbolRule("+", "-") { name = "signal", kind = ParseRule.Kind.Optional },
                         () => new SymbolRule("("){ ignore=true },
-                        () => AdditionRule,
+                        () => Expression("Add"),
                         () => new SymbolRule(")"){ ignore=true },
                     }
                 },
-                Variable
             }
         };
 
@@ -88,15 +89,5 @@ namespace ParserFramework.Examples.Expression
                 new IdRule(){name ="varName"}
             }
         };
-
-        public static TokenList DefaultTokenList(string input)
-        {
-            Tokenizer tokenizer = new Tokenizer(new StringReader(input));
-            tokenizer.rules.Add(new Regex(@"^([0-9]+)"), m => new IntToken(int.Parse(m.Value)));
-            tokenizer.rules.Add(new Regex(@"^([0-9]+(?:\.[0-9]+)?)"), m => new FloatToken(float.Parse(m.Value.Replace('.', ','))));
-            tokenizer.rules.Add(new Regex(@"^([a-z]+)"), m => new IdToken(m.Value));
-
-            return new TokenList(tokenizer);
-        }
     }
 }

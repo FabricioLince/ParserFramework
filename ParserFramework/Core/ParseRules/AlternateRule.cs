@@ -5,6 +5,8 @@ namespace ParserFramework.Core.ParseRules
 {
     class AlternateRule : ParseRule
     {
+        public AlternateRule(string name = null) { this.name = name ?? "unnamed alt rule"; }
+
         public List<ParseRule> possibilities = new List<ParseRule>();
 
         protected override ParsingInfo Parse(TokenList list)

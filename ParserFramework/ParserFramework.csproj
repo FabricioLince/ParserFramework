@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Core\ParseRules\AlternateRule.cs" />
     <Compile Include="Core\TokenParser.cs" />
+    <Compile Include="Core\Utils.cs" />
     <Compile Include="Examples\Equation\Rules.cs" />
     <Compile Include="Examples\Equation\Parser.cs" />
     <Compile Include="Examples\Equation\Solver.cs" />
@@ -54,9 +55,12 @@
     <Compile Include="Examples\Expression\Parser.cs" />
     <Compile Include="Core\ParseRules\ParseRule.cs" />
     <Compile Include="Core\ParsingInfo.cs" />
+    <Compile Include="Examples\Script\Parser\Expression.cs" />
+    <Compile Include="Examples\Script\Rules\ExpressionRules.cs" />
+    <Compile Include="Examples\Script\Parser\Parser.cs" />
+    <Compile Include="Examples\Script\Rules\Rules.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RuleCreator.cs" />
     <Compile Include="Core\Token.cs" />
     <Compile Include="Core\Tokenizer.cs" />
     <Compile Include="Core\TokenList.cs" />

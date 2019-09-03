@@ -8,10 +8,12 @@ namespace ParserFramework.Equation
 {
     public class Parser
     {
-        public static Equation Parse(string input)
+        public static Equation Parse(string input, bool consumeWholeInput = true)
         {
-            var info = Rules.Main.Execute(Rules.DefaultTokenList(input));
+            var tokenList = Rules.DefaultTokenList(input);
+            var info = Rules.Equation.Execute(tokenList);
             if (info == null) return null;
+            if (consumeWholeInput && tokenList.Current.kind != Token.Kind.EOF) return null;
             //Console.WriteLine(info);
             return CreateEquation(info);
         }

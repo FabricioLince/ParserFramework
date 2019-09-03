@@ -7,64 +7,33 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-class MainClass
-{
-    public static void Main(string[] args)
-    {
-        string input = "1--(-2)=(-2x--x)*2";
-        Console.WriteLine(input);
-        if (Solver.TrySolve(input, out float result))
-        {
-            Console.WriteLine("x = " + result);
-        }
-
-        Console.ReadKey(true);
-    }
-}
-
 namespace ParserFramework
 {
-    using N = Equation;
-
-    class Program
+    class MainClass
     {
-        static void Main2(string[] args)
+        public static void Main(string[] args)
         {
-            var input = "2*x=12";
-
-            input = Equation.Expander.Expand(input);
+            string input = "-2-x=-x12";
             Console.WriteLine(input);
-
-            TokenList list = Expression.Parser.DefaultTokenList(input);
-            var rule = N.Rules.Main;
-
-            var info = rule.Execute(list);
-            if (info == null) Console.WriteLine("not an " + rule.name);
-
-            if (list.Current.kind != Token.Kind.EOF || rule.Error)
+            if (Solver.TrySolve(input, out float result))
             {
-                Console.WriteLine("Stopped on " + list.Current + " " +list.Current.Position);
+                Console.WriteLine("x = " + result);
+            }
+            else
+            {
+                Console.WriteLine("Couldn't solve '" + input + "'");
 
-                var error = "";
-                for (int i = 0; i < rule.errorInfo.Count; i++)
                 {
-                    error += rule.errorInfo[i].ToString();
+                    Console.WriteLine("Errors:");
+                    Console.WriteLine(Rules.Equation.LastErrors.ReduceToString("\n"));
                 }
-                Console.WriteLine("ERROR:\n" + error);
             }
-
-            Console.WriteLine(info);
-            try
-            {
-                N.Solver.TrySolve(input, out float result);
-                Console.WriteLine("result = " + result);
-            }
-            catch (ArgumentException) { }
-            Console.WriteLine();
 
             Console.ReadKey(true);
         }
-
+    }
+    class Program
+    {
         static string PatternForSymbols(params string[] symbols)
         {
             string pattern = "^(";
@@ -148,7 +117,7 @@ namespace ParserFramework
         public static string ReduceToString<T>(this IEnumerable<T> en, Func<T, string> ToString, string separator)
         {
             string rt = "";
-            foreach(var t in en)
+            foreach (var t in en)
             {
                 rt += ToString(t) + separator;
             }

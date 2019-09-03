@@ -48,8 +48,10 @@ namespace ParserFramework.ParseRules
                 return null;
             }
 
-            ParsingInfo info = new ParsingInfo();
-            info.Add(name, token);
+            ParsingInfo info = new ParsingInfo
+            {
+                { name, token }
+            };
             return info;
         }
     }
@@ -88,9 +90,28 @@ namespace ParserFramework.ParseRules
 
     public class IdRule : TokenRule<IdToken>
     {
-        public IdRule(params string[] acceptedSymbols)
-            : base(token => acceptedSymbols.Length == 0 || acceptedSymbols.Contains(token.Value))
+        List<string> acceptedIds;
+        public IdRule(params string[] acceptedIds)
+            : base(token => acceptedIds.Length == 0 || acceptedIds.Contains(token.Value))
         {
+            this.acceptedIds = new List<string>(acceptedIds);
+        }
+        protected override ParsingInfo Parse(TokenList list)
+        {
+            var info = base.Parse(list);
+
+            if (info == null)
+            {
+                errorInfo.Clear();
+                errorInfo.Add(new ParseErrorInfo()
+                {
+                    expected = ("Id " + acceptedIds.ReduceToString(" ")),
+                    got = (list.Current.ToString()),
+                    tokenGot = list.Current,
+                });
+            }
+
+            return info;
         }
     }
 }

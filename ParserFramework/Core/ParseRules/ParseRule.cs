@@ -16,6 +16,28 @@ namespace ParserFramework.ParseRules
 
         public List<ParseErrorInfo> errorInfo = new List<ParseErrorInfo>();
         public bool Error { get; protected set; } = false;
+        public List<ParseErrorInfo> LastErrors { get; private set; } = new List<ParseErrorInfo>();
+
+        protected void AddChildErrors(List<ParseErrorInfo> childErrors)
+        {
+            errorInfo.AddRange(childErrors);
+            foreach (var err in errorInfo)
+            {
+                if (err.rule == null) err.rule = this;
+            }
+            if (errorInfo.Count == 0) return;
+
+            LastErrors.Clear();
+            Token lastErrorGot = errorInfo[errorInfo.Count - 1].tokenGot;
+            for (int i = 0; i < errorInfo.Count; i++)
+            {
+                if(errorInfo[i].tokenGot.Position == lastErrorGot.Position)
+                {
+                    if (LastErrors.Contains(errorInfo[i])) continue;
+                    LastErrors.Add(errorInfo[i]);
+                }
+            }
+        }
 
         /// <summary>
         /// being true means this will return ParsingInfo.Empty even if it's a match
@@ -27,6 +49,7 @@ namespace ParserFramework.ParseRules
 
         public ParsingInfo Execute(TokenList list)
         {
+            errorInfo.Clear();
             var info = Parse(list);
             if (info == null)
             {
@@ -85,8 +108,23 @@ namespace ParserFramework.ParseRules
         public override string ToString()
         {
             if (rule == null)
-                return "expected " + expected + " | got " + got + position + "\n";
-            return "expected " + expected + " | got " + got + position + " from rule " + rule.Descriptor + "\n";
+                return "expected " + expected + " | got " + got + position + "";
+            return "expected " + expected + " | got " + got + position + " from " + rule.Descriptor + "";
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as ParseErrorInfo);
+        }
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public bool Equals(ParseErrorInfo other)
+        {
+            return expected == other.expected
+                && position == other.position;
         }
     }
 }

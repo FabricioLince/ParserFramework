@@ -34,20 +34,15 @@ namespace ParserFramework.ParseRules
 
                 //if(rule.kind != Kind.Optional)
                 {
-                    errorInfo.AddRange(rule.errorInfo);
-                    foreach (var err in errorInfo)
-                    {
-                        if (err.rule == null) err.rule = this;
-                    }
+                    //Console.WriteLine(rule.errorInfo.ReduceToString("\n"));
+                    AddChildErrors(rule.errorInfo);
                 }
 
                 if (info == null) // if it's null it's an error
                 {
                     Error = true;
-                    if (!allInfo.IsEmpty)
-                    {
-                    }
                     list.index = index;
+                    //Console.WriteLine("Error on " + this.name + " " + this.errorInfo.Count);
                     return null; 
                 }
 

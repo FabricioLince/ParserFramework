@@ -9,9 +9,9 @@ namespace ParserFramework.Equation
 {
     class Solver
     {
-        internal static bool TrySolve(string input, out float result)
+        internal static bool TrySolve(string input, out float result, bool consumeWholeInput = true)
         {
-            var equation = Parser.Parse(input);
+            var equation = Parser.Parse(input, consumeWholeInput);
 
             if (equation != null)
             {
@@ -26,8 +26,8 @@ namespace ParserFramework.Equation
 
         public static float Solve(Equation equation)
         {
-            MixedTerm lhs = Solve(equation.lhs);
-            MixedTerm rhs = Solve(equation.rhs);
+            Polinomial lhs = Solve(equation.lhs);
+            Polinomial rhs = Solve(equation.rhs);
 
             Console.WriteLine(lhs + " = " + rhs);
 
@@ -38,9 +38,9 @@ namespace ParserFramework.Equation
             return nTerms / xTerms;
         }
 
-        public static MixedTerm Solve(XTerm xTerm) { return new MixedTerm(xTerm.value, 0); }
-        public static MixedTerm Solve(Number number) { return new MixedTerm(0, number.value); }
-        public static MixedTerm Solve(SubExpr subExpr)
+        public static Polinomial Solve(XTerm xTerm) { return new Polinomial(xTerm.value, 0); }
+        public static Polinomial Solve(Number number) { return new Polinomial(0, number.value); }
+        public static Polinomial Solve(SubExpr subExpr)
         {
             var rt = Solve(subExpr.add);
             if (subExpr.signal != null && subExpr.signal == "-")
@@ -49,16 +49,16 @@ namespace ParserFramework.Equation
             }
             return rt;
         }
-        public static MixedTerm Solve(Term term)
+        public static Polinomial Solve(Term term)
         {
             if (term is Number n) return Solve(n);
             if (term is XTerm x) return Solve(x);
             if (term is SubExpr s) return Solve(s);
             throw new Exception("Unkown Term");
         }
-        public static MixedTerm Solve(Mult mult)
+        public static Polinomial Solve(Mult mult)
         {
-            MixedTerm result = Solve(mult.term);
+            Polinomial result = Solve(mult.term);
             foreach (var multOp in mult.multOp)
             {
                 switch (multOp.operatorSymbol)
@@ -73,9 +73,9 @@ namespace ParserFramework.Equation
             }
             return result;
         }
-        public static MixedTerm Solve(Add add)
+        public static Polinomial Solve(Add add)
         {
-            MixedTerm result = Solve(add.mult);
+            Polinomial result = Solve(add.mult);
             foreach (var addOp in add.addOp)
             {
                 switch (addOp.operatorSymbol)
@@ -93,59 +93,59 @@ namespace ParserFramework.Equation
             return result;
         }
 
-        public class MixedTerm
+        public class Polinomial
         {
             public float xValue;
             public float pureValue;
-            public MixedTerm(float a = 0, float b = 0) { xValue = a; pureValue = b; }
+            public Polinomial(float a = 0, float b = 0) { xValue = a; pureValue = b; }
 
-            public static MixedTerm operator +(MixedTerm a, MixedTerm b)
+            public static Polinomial operator +(Polinomial a, Polinomial b)
             {
-                return new MixedTerm()
+                return new Polinomial()
                 {
                     xValue = a.xValue + b.xValue,
                     pureValue = a.pureValue + b.pureValue
                 };
             }
-            public static MixedTerm operator -(MixedTerm a, MixedTerm b)
+            public static Polinomial operator -(Polinomial a, Polinomial b)
             {
-                return new MixedTerm()
+                return new Polinomial()
                 {
                     xValue = a.xValue - b.xValue,
                     pureValue = a.pureValue - b.pureValue
                 };
             }
-            public static MixedTerm operator *(MixedTerm a, MixedTerm b)
+            public static Polinomial operator *(Polinomial a, Polinomial b)
             {
                 if (a.xValue != 0 && b.xValue != 0)
                 {
                     throw new Exception("Multiplication between two Xs (" + a + " * " + b + ")");
                 }
-                return new MixedTerm()
+                return new Polinomial()
                 {
                     xValue = a.xValue * b.pureValue + a.pureValue * b.xValue,
                     pureValue = a.pureValue * b.pureValue
                 };
             }
-            public static MixedTerm operator /(MixedTerm a, MixedTerm b)
+            public static Polinomial operator /(Polinomial a, Polinomial b)
             {
-                MixedTerm ib = new MixedTerm(
+                Polinomial ib = new Polinomial(
                   b.xValue == 0 ? 0 : 1.0f / b.xValue,
                   b.pureValue == 0 ? 0 : 1.0f / b.pureValue);
                 return a * ib;
             }
-            public static MixedTerm operator *(float b, MixedTerm a) => a * b;
-            public static MixedTerm operator *(MixedTerm a, float b)
+            public static Polinomial operator *(float b, Polinomial a) => a * b;
+            public static Polinomial operator *(Polinomial a, float b)
             {
-                return new MixedTerm()
+                return new Polinomial()
                 {
                     xValue = a.xValue * b,
                     pureValue = a.pureValue * b
                 };
             }
-            public static MixedTerm operator /(MixedTerm a, float b)
+            public static Polinomial operator /(Polinomial a, float b)
             {
-                return new MixedTerm()
+                return new Polinomial()
                 {
                     xValue = a.xValue / b,
                     pureValue = a.pureValue / b

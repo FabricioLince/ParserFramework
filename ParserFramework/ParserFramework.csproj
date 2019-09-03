@@ -45,7 +45,6 @@
   <ItemGroup>
     <Compile Include="Core\ParseRules\AlternateRule.cs" />
     <Compile Include="Core\TokenParser.cs" />
-    <Compile Include="Equation\Expander.cs" />
     <Compile Include="Equation\Rules.cs" />
     <Compile Include="Equation\Parser.cs" />
     <Compile Include="Equation\Solver.cs" />

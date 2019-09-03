@@ -2,17 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace ParserFramework.Equation
 {
     public class Rules
     {
-        public static ParseRule Main => Equation;
-
-        static ParseRule Equation => new GroupRule
+        public static ParseRule Equation = new GroupRule
         {
             name = "Equation",
             rules = new List<ParseRule>()
@@ -23,7 +19,7 @@ namespace ParserFramework.Equation
             }
         };
 
-        static ParseRule AdditionRule => new GroupRule()
+        static ParseRule AdditionRule => new GroupRule
         {
             name = "Add",
             kind = ParseRule.Kind.Mandatory,
@@ -43,7 +39,7 @@ namespace ParserFramework.Equation
             }
         };
 
-        public static ParseRule MultiplicationRule => new GroupRule
+        static ParseRule MultiplicationRule => new GroupRule
         {
             name = "Mult",
             rules = new List<ParseRule>()
@@ -62,7 +58,7 @@ namespace ParserFramework.Equation
             }
         };
 
-        public static ParseRule Term => new AlternateRule
+        static ParseRule Term => new AlternateRule
         {
             name = "Term",
             possibilities = new List<ParseRule>()
@@ -83,7 +79,7 @@ namespace ParserFramework.Equation
             }
         };
 
-        public static ParseRule XTerm => new AlternateRule
+        static ParseRule XTerm => new AlternateRule
         {
             name = "XTerm",
             possibilities = new List<ParseRule>()

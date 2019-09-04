@@ -1,16 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ParserFramework.Core;
 using ParserFramework.Core.ParseRules;
-using System.IO;
-using System.Text.RegularExpressions;
 
 namespace ParserFramework.Examples.Script
 {
-
     partial class Rules
     {
         public static ParseRule Expression(string name) => new GroupRule(name)

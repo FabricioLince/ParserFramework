@@ -10,7 +10,7 @@ namespace ParserFramework.Examples.Script
         {
             var list = Rules.DefaultTokenList(input);
             var info = Rules.Command.Execute(list);
-            Console.WriteLine(info);
+            //Console.WriteLine(info);
             if (info == null)
             {
                 Console.WriteLine(list);
@@ -30,6 +30,10 @@ namespace ParserFramework.Examples.Script
                 else if (pair.Key == "Print")
                 {
                     return CreatePrintCommand(pair.Value.AsChild);
+                }
+                else if (pair.Key == "List")
+                {
+                    return CreateListCommand(pair.Value.AsChild);
                 }
                 else Console.WriteLine("Command has '" + pair.Key + "'");
             }
@@ -93,6 +97,10 @@ namespace ParserFramework.Examples.Script
             }
             return cmd;
         }
+        static ListCommand CreateListCommand(ParsingInfo info)
+        {
+            return new ListCommand();
+        }
     }
 
     public abstract class Command { }
@@ -128,6 +136,13 @@ namespace ParserFramework.Examples.Script
         {
             return "print " +
                 ArgList.ReduceToString(arg => arg.str != null ? arg.str : arg.expression.ToString(), " ");
+        }
+    }
+    public class ListCommand : Command
+    {
+        public override string ToString()
+        {
+            return "list";
         }
     }
 }

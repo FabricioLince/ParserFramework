@@ -14,6 +14,7 @@ namespace ParserFramework.Examples.Script
             {
                 AttribuitionCommand,
                 PrintCommand,
+                ListCommand,
             }
         };
 
@@ -50,6 +51,14 @@ namespace ParserFramework.Examples.Script
             {
                 Expression("expr"),
                 new TokenRule<StringToken>("string"),
+            }
+        };
+
+        static ParseRule ListCommand => new GroupRule("List")
+        {
+            rules = new List<ParseRule>()
+            {
+                new IdRule("list")
             }
         };
 

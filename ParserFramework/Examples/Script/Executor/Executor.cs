@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ParserFramework.Examples.Script
 {
@@ -14,6 +11,7 @@ namespace ParserFramework.Examples.Script
         {
             if (command is PrintCommand p) ExecutePrint(p);
             else if (command is Attribuition attr) ExecuteAttribuition(attr);
+            else if (command is ListCommand) ExecuteList();
         }
 
         static void ExecuteAttribuition(Attribuition attr)
@@ -34,7 +32,14 @@ namespace ParserFramework.Examples.Script
                 else if (arg.expression != null)
                     Console.WriteLine(ExpressionEvaluator.Evaluate(arg.expression));
             }
-            
+        }
+
+        static void ExecuteList()
+        {
+            foreach (var v in Executor.variables)
+            {
+                Console.WriteLine(v.Key + " = " + v.Value);
+            }
         }
     }
 }

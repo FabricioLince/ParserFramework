@@ -11,7 +11,7 @@ namespace ParserFramework.Examples.Script
                 string input = Console.ReadLine();
                 if (input == ".")
                 {
-                    MultiBlockInput();
+                    MultiLineInput();
                 }
                 else if (input == "exit")
                 {
@@ -24,9 +24,19 @@ namespace ParserFramework.Examples.Script
             }
         }
 
-        static void MultiBlockInput()
+        static void MultiLineInput()
         {
-
+            string multiLineInput = "{\n"; // surround with {} for it to be treated as a command block
+            while (true)
+            {
+                Console.Write(".");
+                string input = Console.ReadLine();
+                if (input == ".") break;
+                multiLineInput += input + "\n";
+            }
+            multiLineInput += "}";
+            Console.WriteLine(multiLineInput);
+            Execute(multiLineInput);
         }
 
         static void Execute(string input)

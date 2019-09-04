@@ -40,6 +40,10 @@ namespace ParserFramework.Examples.Script
                 {
                     return CreateIfCommand(pair.Value.AsChild);
                 }
+                else if (pair.Key == "CmdBlock")
+                {
+                    return CreateCommandBlock(pair.Value.AsChild);
+                }
                 else Console.WriteLine("Command has '" + pair.Key + "'");
             }
             return null;
@@ -132,6 +136,20 @@ namespace ParserFramework.Examples.Script
         {
             if (info == null) return null; // is optional
             return CreateCommand(info.GetChild("Command"));
+        }
+
+        static Command CreateCommandBlock(ParsingInfo info)
+        {
+            CommandBlock block = new CommandBlock();
+            var commands = info.GetChild("Commands");
+            if (commands != null) // Multiple
+            {
+                foreach (var cmd in commands)
+                {
+                    block.commands.Add(CreateCommand(cmd.Value.AsChild));
+                }
+            }
+            return block;
         }
 
         static void PrintContentNames(string name, ParsingInfo info)

@@ -20,6 +20,8 @@ namespace ParserFramework
             {
                 rt += ToString(t) + separator;
             }
+            if(rt.Length>0)
+                return rt.Substring(0, rt.Length - separator.Length);
             return rt;
         }
         public static string ReduceToString<T>(this IEnumerable<T> en, string separator) where T : class

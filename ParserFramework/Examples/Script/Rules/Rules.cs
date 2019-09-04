@@ -12,10 +12,22 @@ namespace ParserFramework.Examples.Script
         {
             possibilities = new List<ParseRule>()
             {
+                CommandBlock,
                 AttribuitionCommand,
                 PrintCommand,
                 ListCommand,
                 IfCmd,
+            }
+        };
+
+        static ParseRule CommandBlock => new GroupRule("CmdBlock")
+        {
+            rulesF = new List<System.Func<ParseRule>>()
+            {
+                () => new SymbolRule("{"){ignore=true},
+                () => new ChangeRuleKind(Command, ParseRule.Kind.Multiple, "Commands"),
+                () => new SymbolRule("}"){ignore=true},
+
             }
         };
 

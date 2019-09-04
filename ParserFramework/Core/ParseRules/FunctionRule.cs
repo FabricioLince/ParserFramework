@@ -14,4 +14,16 @@ namespace ParserFramework.Core.ParseRules
             return parsingFunc(list);
         }
     }
+
+    public class ChangeRuleKind : FunctionRule
+    {
+        public ChangeRuleKind(ParseRule rule, Kind newKind) : base(tokens => { rule.kind = newKind; return rule.Execute(tokens); })
+        {
+            name = rule.name;
+        }
+        public ChangeRuleKind(ParseRule rule, Kind newKind, string name) : base(tokens => { rule.kind = newKind; return rule.Execute(tokens); })
+        {
+            this.name = name;
+        }
+    }
 }

@@ -13,6 +13,15 @@ namespace ParserFramework.Examples.Script
             else if (command is Attribuition attr) ExecuteAttribuition(attr);
             else if (command is ListCommand) ExecuteList();
             else if (command is IfCommand ifc) ExecuteIfCmd(ifc);
+            else if (command is CommandBlock block) ExecuteBlock(block);
+        }
+
+        private static void ExecuteBlock(CommandBlock block)
+        {
+            foreach (var cmd in block.commands)
+            {
+                Execute(cmd);
+            }
         }
 
         private static void ExecuteIfCmd(IfCommand ifc)

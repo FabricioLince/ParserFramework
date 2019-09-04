@@ -56,4 +56,9 @@ namespace ParserFramework.Examples.Script
             return "if " + condition.ToString() + "\n" + command.ToString() + "\nelse\n" + elseCommand.ToString();
         }
     }
+
+    public class CommandBlock : Command
+    {
+        public List<Command> commands = new List<Command>();
+    }
 }

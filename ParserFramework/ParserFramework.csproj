@@ -60,6 +60,7 @@
     <Compile Include="Examples\Script\Executor\Executor.cs" />
     <Compile Include="Examples\Script\Executor\ExpressionEvaluator.cs" />
     <Compile Include="Examples\Script\Main.cs" />
+    <Compile Include="Examples\Script\Parser\Commands.cs" />
     <Compile Include="Examples\Script\Parser\Expression.cs" />
     <Compile Include="Examples\Script\Rules\ExpressionRules.cs" />
     <Compile Include="Examples\Script\Parser\Parser.cs" />

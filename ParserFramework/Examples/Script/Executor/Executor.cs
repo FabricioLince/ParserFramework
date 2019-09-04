@@ -12,6 +12,40 @@ namespace ParserFramework.Examples.Script
             if (command is PrintCommand p) ExecutePrint(p);
             else if (command is Attribuition attr) ExecuteAttribuition(attr);
             else if (command is ListCommand) ExecuteList();
+            else if (command is IfCommand ifc) ExecuteIfCmd(ifc);
+        }
+
+        private static void ExecuteIfCmd(IfCommand ifc)
+        {
+            float lhs = ExpressionEvaluator.Evaluate(ifc.condition.expr);
+            if (ifc.condition.comparation == null)
+            {
+                // no rhs on condition, evaluate lhs as bool
+                Execute(lhs != 0, ifc);
+            }
+            else
+            {
+                float rhs = ExpressionEvaluator.Evaluate(ifc.condition.comparation.expr);
+                switch(ifc.condition.comparation.signal)
+                {
+                    case ">":
+                        Execute(lhs > rhs, ifc);
+                        break;
+                    case "<":
+                        Execute(lhs < rhs, ifc);
+                        break;
+                    case "==":
+                        Execute(lhs == rhs, ifc);
+                        break;
+                }
+            }
+        }
+        static void Execute(bool condition, IfCommand ifc)
+        {
+            if (condition)
+                Execute(ifc.command);
+            else if (ifc.elseCommand != null)
+                Execute(ifc.elseCommand);
         }
 
         static void ExecuteAttribuition(Attribuition attr)
@@ -25,13 +59,14 @@ namespace ParserFramework.Examples.Script
 
         static void ExecutePrint(PrintCommand printCmd)
         {
-            foreach (var arg  in printCmd.ArgList)
+            Console.WriteLine(printCmd.ArgList.ReduceToString(arg =>
             {
                 if (arg.str != null)
-                    Console.WriteLine(arg.str);
+                    return arg.str;
                 else if (arg.expression != null)
-                    Console.WriteLine(ExpressionEvaluator.Evaluate(arg.expression));
-            }
+                    return ExpressionEvaluator.Evaluate(arg.expression).ToString();
+                return "";
+            }, " "));
         }
 
         static void ExecuteList()

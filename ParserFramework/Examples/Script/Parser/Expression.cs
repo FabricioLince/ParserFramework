@@ -168,16 +168,48 @@ namespace ParserFramework.Examples.Script
 
             return variable;
         }
+
+        public static Condition CreateCondition(ParsingInfo info)
+        {
+            var condition = new Condition();
+            condition.expr = CreateExpression(info.GetChild("expr"));
+            if (condition.expr == null)
+            {
+                Console.WriteLine(info.ReduceToString(p => "condition has '" + p.Key + "'", "\n"));
+                throw new Exception("Condition doesn't have 'expr'");
+            }
+
+            condition.comparation = CreateComparation(info.GetChild("comparation"));
+
+            return condition;
+        }
+        static Comparation CreateComparation(ParsingInfo info)
+        {
+            if (info == null) return null; // Is Optional
+
+            var comparation = new Comparation();
+            if (!(info.GetToken("signal") is SymbolToken signalToken)) throw new Exception("Comparation w/o signal");
+            comparation.signal = signalToken.Value;
+            comparation.expr = CreateExpression(info.GetChild("expr"));
+            if (comparation.expr == null)
+            {
+                Console.WriteLine(info.ReduceToString(p => "condition has '" + p.Key + "'", "\n"));
+                throw new Exception("Condition doesn't have 'expr'");
+            }
+
+            return comparation;
+        }
     }
 
-    public class Equation
+    public class Condition
     {
-        public Expression lhs;
-        public Expression rhs;
-        public override string ToString()
-        {
-            return lhs.ToString() + " = " + rhs.ToString();
-        }
+        public Expression expr;
+        public Comparation comparation;
+    }
+    public class Comparation
+    {
+        public string signal;
+        public Expression expr;
     }
 
     public abstract class Term { }

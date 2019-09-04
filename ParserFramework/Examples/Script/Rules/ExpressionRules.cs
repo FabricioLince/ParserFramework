@@ -6,6 +6,24 @@ namespace ParserFramework.Examples.Script
 {
     partial class Rules
     {
+        public static ParseRule Condition => new GroupRule("condition")
+        {
+            rules = new List<ParseRule>()
+            {
+                Expression("expr"),
+                Comparation
+            }
+        };
+        static ParseRule Comparation => new GroupRule("comparation")
+        {
+            kind = ParseRule.Kind.Optional,
+            rules = new List<ParseRule>()
+            {
+                new SymbolRule(">", "<", "=="){name= "signal"},
+                Expression("expr")
+            }
+        };
+
         public static ParseRule Expression(string name) => new GroupRule(name)
         {
             kind = ParseRule.Kind.Mandatory,

@@ -8,13 +8,14 @@ namespace ParserFramework.Examples.Script
 {
     partial class Rules
     {
-        public static ParseRule Command = new AlternateRule("Command")
+        public static ParseRule Command => new AlternateRule("Command")
         {
             possibilities = new List<ParseRule>()
             {
                 AttribuitionCommand,
                 PrintCommand,
                 ListCommand,
+                IfCmd,
             }
         };
 
@@ -42,6 +43,7 @@ namespace ParserFramework.Examples.Script
             {
                 new IdRule("print"){ ignore = true },
                 PrintArg,
+                new SymbolRule(";"){ignore=true, kind = ParseRule.Kind.Optional}
             }
         };
         static ParseRule PrintArg => new AlternateRule("arg")
@@ -62,6 +64,26 @@ namespace ParserFramework.Examples.Script
             }
         };
 
+        static ParseRule IfCmd => new GroupRule("IfCmd")
+        {
+            rulesF = new List<System.Func<ParseRule>>()
+            {
+                () => new IdRule("if"){ ignore=true },
+                () => Condition,
+                () => Command,
+                () => ElseBlock
+            }
+        };
+        static ParseRule ElseBlock => new GroupRule("else")
+        {
+            kind = ParseRule.Kind.Optional,
+            rulesF = new List<System.Func<ParseRule>>()
+            {
+                () => new IdRule("else"){ignore=true},
+                () => Command
+            }
+        };
+
         public class StringToken : Token
         {
             public readonly string Value;
@@ -78,15 +100,13 @@ namespace ParserFramework.Examples.Script
         public static TokenList DefaultTokenList(string input)
         {
             Tokenizer tokenizer = new Tokenizer(new StringReader(input));
-            tokenizer.rules.Add(new Regex(@"\'.*\'"), m => new StringToken(m.Value.Substring(1, m.Value.Length - 2)));
-            tokenizer.rules.Add(new Regex("\".*\""), m => new StringToken(m.Value.Substring(1, m.Value.Length - 2)));
+            tokenizer.rules.Add(new Regex("^\'([^\"\n])*\'"), m => new StringToken(m.Value.Substring(1, m.Value.Length - 2)));
+            tokenizer.rules.Add(new Regex("^\"([^\"\n])*\""), m => new StringToken(m.Value.Substring(1, m.Value.Length - 2)));
 
             tokenizer.rules.Add(new Regex(@"^([0-9]+)"), m => new IntToken(int.Parse(m.Value)));
             tokenizer.rules.Add(new Regex(@"^([0-9]+(?:\.[0-9]+)?)"), m => new FloatToken(float.Parse(m.Value.Replace('.', ','))));
             tokenizer.rules.Add(new Regex(@"^(\w+)"), m => new IdToken(m.Value));
-
-            
-
+            tokenizer.rules.Add(Core.Utils.RegexForSymbols("=="), m => new SymbolToken("=="));
 
             TokenList list = new TokenList(tokenizer);
             return list;

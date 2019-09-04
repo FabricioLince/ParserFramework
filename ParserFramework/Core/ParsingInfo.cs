@@ -40,13 +40,7 @@ namespace ParserFramework.Core
             return i.AsToken;
         }
 
-        public Info FirstInfo
-        {
-            get
-            {
-                return info.First().Value;
-            }
-        }
+        public Info FirstInfo => info.First().Value;
 
         public Info this[string name]
         {
@@ -54,6 +48,7 @@ namespace ParserFramework.Core
             set { info[name] = value; }
         }
         public Info Get(string name) { return info.ContainsKey(name) ? info[name] : null; }
+        public ParsingInfo GetChild(string name) { return Get(name)?.AsChild ?? null; }
 
         public override string ToString()
         {

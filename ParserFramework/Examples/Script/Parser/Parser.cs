@@ -9,6 +9,7 @@ namespace ParserFramework.Examples.Script
         public static Command Parse(string input)
         {
             var list = Rules.DefaultTokenList(input);
+            //Console.WriteLine(list);
             var info = Rules.Command.Execute(list);
             //Console.WriteLine(info);
             if (info == null)
@@ -34,6 +35,10 @@ namespace ParserFramework.Examples.Script
                 else if (pair.Key == "List")
                 {
                     return CreateListCommand(pair.Value.AsChild);
+                }
+                else if (pair.Key == "IfCmd")
+                {
+                    return CreateIfCommand(pair.Value.AsChild);
                 }
                 else Console.WriteLine("Command has '" + pair.Key + "'");
             }
@@ -101,48 +106,42 @@ namespace ParserFramework.Examples.Script
         {
             return new ListCommand();
         }
+        static IfCommand CreateIfCommand(ParsingInfo info)
+        {
+            IfCommand cmd = new IfCommand();
+
+            cmd.condition = CreateCondition(info.GetChild("condition"));
+            if (cmd.condition == null)
+            {
+                PrintContentNames("IfCmd", info);
+                throw new Exception("IfCmd doesn't have 'condition'");
+            }
+
+            cmd.command = CreateCommand(info.GetChild("Command"));
+            if (cmd.command == null)
+            {
+                PrintContentNames("IfCmd", info);
+                throw new Exception("IfCmd doesn't have 'command'");
+            }
+
+            cmd.elseCommand = CreateElse(info.GetChild("else"));
+
+            return cmd;
+        }
+        static Command CreateElse(ParsingInfo info)
+        {
+            if (info == null) return null; // is optional
+            return CreateCommand(info.GetChild("Command"));
+        }
+
+        static void PrintContentNames(string name, ParsingInfo info)
+        {
+            Console.WriteLine(name + " has " + GetContentNames(info));
+        }
+        static string GetContentNames(ParsingInfo info)
+        {
+            return info.ReduceToString(p => p.Key, ", ");
+        }
     }
 
-    public abstract class Command { }
-    public abstract class Attribuition : Command { }
-    public class ExpressionAttribuition : Attribuition
-    {
-        public string varName;
-        public Expression expression;
-
-        public override string ToString()
-        {
-            return varName + " = " + expression.ToString();
-        }
-    }
-    public class PrintCommand : Command
-    {
-        public class Arg
-        {
-            public Expression expression;
-            public string str;
-            public static implicit operator Arg(string str)
-            {
-                return new Arg() { str = str };
-            }
-            public static implicit operator Arg(Expression exp)
-            {
-                return new Arg() { expression = exp };
-            }
-        }
-        public readonly List<Arg> ArgList = new List<Arg>();
-        
-        public override string ToString()
-        {
-            return "print " +
-                ArgList.ReduceToString(arg => arg.str != null ? arg.str : arg.expression.ToString(), " ");
-        }
-    }
-    public class ListCommand : Command
-    {
-        public override string ToString()
-        {
-            return "list";
-        }
-    }
 }

@@ -61,4 +61,25 @@ namespace ParserFramework.Examples.Script
     {
         public List<Command> commands = new List<Command>();
     }
+
+    public class ReadCmd : Command
+    {
+        public string varName;
+    }
+
+    public class RunCmd : Command
+    {
+        public string fileName;
+    }
+
+    public class WhileCmd : Command
+    {
+        public Condition condition;
+        public Command command;
+    }
+
+    public class BreakCmd:Command
+    {
+
+    }
 }

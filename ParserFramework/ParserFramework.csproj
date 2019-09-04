@@ -59,6 +59,7 @@
     <Compile Include="Core\ParsingInfo.cs" />
     <Compile Include="Examples\Script\Executor\Executor.cs" />
     <Compile Include="Examples\Script\Executor\ExpressionEvaluator.cs" />
+    <Compile Include="Examples\Script\Executor\Memory.cs" />
     <Compile Include="Examples\Script\Main.cs" />
     <Compile Include="Examples\Script\Parser\Commands.cs" />
     <Compile Include="Examples\Script\Parser\Expression.cs" />

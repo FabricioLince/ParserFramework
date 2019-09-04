@@ -19,7 +19,7 @@ namespace ParserFramework.Examples.Script
                 }
                 else
                 {
-                    Execute(input);
+                    Executor.Execute(input);
                 }
             }
         }
@@ -35,22 +35,10 @@ namespace ParserFramework.Examples.Script
                 multiLineInput += input + "\n";
             }
             multiLineInput += "}";
-            Execute(multiLineInput);
+            Executor.Execute(multiLineInput);
         }
 
-        static void Execute(string input)
-        {
-            var command = Parser.Parse(input);
-
-            if (command != null)
-            {
-                Executor.Execute(command);
-            }
-            else
-            {
-                Console.WriteLine("Unrecognized command");
-            }
-        }
+        
     }
 
     /*

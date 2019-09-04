@@ -17,6 +17,10 @@ namespace ParserFramework.Examples.Script
                 PrintCommand,
                 ListCommand,
                 IfCmd,
+                ReadCmd,
+                RunCmd,
+                WhileCmd,
+                BreakCmd,
             }
         };
 
@@ -92,6 +96,42 @@ namespace ParserFramework.Examples.Script
             {
                 () => new IdRule("else"){ignore=true},
                 () => Command
+            }
+        };
+
+        static ParseRule ReadCmd => new GroupRule("Read")
+        {
+            rules = new List<ParseRule>()
+            {
+                new IdRule("read"){ignore=true},
+                new IdRule(){name = "varName"}
+            }
+        };
+
+        static ParseRule RunCmd => new GroupRule("Run")
+        {
+            rules = new List<ParseRule>()
+            {
+                new IdRule("run"){ignore=true},
+                new TokenRule<StringToken>(){name="fileName"}
+            }
+        };
+
+        static ParseRule WhileCmd => new GroupRule("While")
+        {
+            rulesF = new List<System.Func<ParseRule>>()
+            {
+                () => new IdRule("while"){ignore=true},
+                () => Condition,
+                () => Command
+            }
+        };
+
+        static ParseRule BreakCmd => new GroupRule("Break")
+        {
+            rules = new List<ParseRule>()
+            {
+                new IdRule("break")
             }
         };
 

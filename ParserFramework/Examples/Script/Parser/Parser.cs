@@ -44,10 +44,66 @@ namespace ParserFramework.Examples.Script
                 {
                     return CreateCommandBlock(pair.Value.AsChild);
                 }
+                else if(pair.Key == "Read")
+                {
+                    return CreateReadCommand(pair.Value.AsChild);
+                }
+                else if(pair.Key=="Run")
+                {
+                    return CreateRunCommand(pair.Value.AsChild);
+                }
+                else if(pair.Key == "While")
+                {
+                    return CreateWhileCommand(pair.Value.AsChild);
+                }
+                else if (pair.Key=="Break")
+                {
+                    return new BreakCmd();
+                }
                 else Console.WriteLine("Command has '" + pair.Key + "'");
             }
             return null;
         }
+
+        private static Command CreateWhileCommand(ParsingInfo info)
+        {
+            var cmd = new WhileCmd();
+
+            var condition = info.GetChild("condition");
+            if(condition==null)
+            {
+                PrintContentNames("WhileCmd", info);
+                throw new Exception("condition missing");
+            }
+            cmd.condition = CreateCondition(condition);
+
+            var command = info.GetChild("Command");
+            if(command==null)
+            {
+                PrintContentNames("WhileCmd", info);
+                throw new Exception("command missing");
+            }
+            cmd.command = CreateCommand(command);
+
+            return cmd;
+        }
+
+        private static Command CreateRunCommand(ParsingInfo info)
+        {
+            var cmd = new RunCmd();
+
+            var stringToken = info.GetToken("fileName") as Rules.StringToken;
+            if (stringToken == null)
+            {
+                PrintContentNames("RunCmd", info);
+                throw new Exception("fileName missing");
+            }
+
+            cmd.fileName = stringToken.Value;
+        
+            return cmd;
+        }
+
         public static Attribuition CreateAttribuition(ParsingInfo info)
         {
             var exprAttr = info.GetChild("ExprAttr");
@@ -125,7 +181,7 @@ namespace ParserFramework.Examples.Script
             if (cmd.command == null)
             {
                 PrintContentNames("IfCmd", info);
-                throw new Exception("IfCmd doesn't have 'command'");
+                throw new Exception("IfCmd doesn't have 'Command'");
             }
 
             cmd.elseCommand = CreateElse(info.GetChild("else"));
@@ -150,6 +206,20 @@ namespace ParserFramework.Examples.Script
                 }
             }
             return block;
+        }
+
+        static Command CreateReadCommand(ParsingInfo info)
+        {
+            ReadCmd cmd = new ReadCmd();
+            var idToken = info.GetToken("varName") as IdToken;
+            if (idToken == null)
+            {
+                PrintContentNames("read", info);
+                throw new Exception("varName missing");
+            }
+            cmd.varName = idToken.Value;
+        
+            return cmd;
         }
 
         static void PrintContentNames(string name, ParsingInfo info)

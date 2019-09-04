@@ -2,6 +2,33 @@
 
 namespace ParserFramework.Examples.Script
 {
+    class ConditionEvaluator
+    {
+        public static bool Evaluate(Condition condition)
+        {
+            float lhs = ExpressionEvaluator.Evaluate(condition.expr);
+            if (condition.comparation == null)
+            {
+                // no rhs on condition, evaluate lhs as bool
+                return (lhs != 0);
+            }
+            else
+            {
+                float rhs = ExpressionEvaluator.Evaluate(condition.comparation.expr);
+                switch (condition.comparation.signal)
+                {
+                    case ">":
+                        return (lhs > rhs);
+                    case "<":
+                        return(lhs < rhs);
+                    case "==":
+                        return(lhs == rhs);
+                }
+            }
+            return false;
+        }
+    }
+
     class ExpressionEvaluator
     {
         public static float Evaluate(Expression expr)
@@ -21,10 +48,8 @@ namespace ParserFramework.Examples.Script
         }
         static float Solve(Variable v)
         {
-            if(Executor.variables.ContainsKey(v.varName))
-            {
-                return Executor.variables[v.varName];
-            }
+            if (Memory.Get(v.varName, out float value)) return value;
+
             Console.WriteLine(">! var '" + v.varName + "' yet to be initialized");
             return 0;
         }
@@ -47,6 +72,9 @@ namespace ParserFramework.Examples.Script
                         break;
                     case "/":
                         result /= Solve(multOp.term);
+                        break;
+                    case "%":
+                        result %= Solve(multOp.term);
                         break;
                 }
             }

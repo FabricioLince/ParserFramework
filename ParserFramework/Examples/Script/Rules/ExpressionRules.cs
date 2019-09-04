@@ -55,7 +55,7 @@ namespace ParserFramework.Examples.Script
                     kind = ParseRule.Kind.Multiple,
                     rules = new List<ParseRule>()
                     {
-                        new SymbolRule("*", "/") { name = "op" },
+                        new SymbolRule("*", "/", "%") { name = "op" },
                         Term
                     }
                 }

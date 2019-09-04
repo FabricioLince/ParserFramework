@@ -1,11 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace ParserFramework.Examples.Script
 {
     partial class Executor
     {
-        public static readonly Dictionary<string, float> variables = new Dictionary<string, float>();
+        static bool breakSet = false;
+        static int onLoop = 0;
+
+        public static void Execute(string input)
+        {
+            var command = Parser.Parse(input);
+
+            if (command != null)
+            {
+                Execute(command);
+            }
+            else
+            {
+                Console.WriteLine("Unrecognized command");
+            }
+        }
 
         public static void Execute(Command command)
         {
@@ -14,6 +30,49 @@ namespace ParserFramework.Examples.Script
             else if (command is ListCommand) ExecuteList();
             else if (command is IfCommand ifc) ExecuteIfCmd(ifc);
             else if (command is CommandBlock block) ExecuteBlock(block);
+            else if (command is ReadCmd read) ExecuteRead(read);
+            else if (command is RunCmd run) ExecuteRun(run);
+            else if (command is WhileCmd w) ExecuteWhile(w);
+            else if (command is BreakCmd)  breakSet = true; 
+        }
+
+        private static void ExecuteWhile(WhileCmd w)
+        {
+            onLoop++;
+            while (ConditionEvaluator.Evaluate(w.condition))
+            {
+                Execute(w.command);
+                if(breakSet)
+                {
+                    breakSet = false;
+                    break;
+                }
+            }
+            onLoop--;
+        }
+
+        private static void ExecuteRun(RunCmd run)
+        {
+            try
+            {
+                string content = "{";
+                using (StreamReader reader = new StreamReader(run.fileName))
+                {
+                    string line = reader.ReadLine();
+                    while (line != null)
+                    {
+                        content += line + "\n";
+                        line = reader.ReadLine();
+                    }
+                }
+                content += "}";
+                Execute(content);
+            }
+            catch(FileNotFoundException e)
+            {
+                Console.WriteLine(e.Message);
+                //Console.WriteLine("File " + run.fileName + " couldn't be found");
+            }
         }
 
         private static void ExecuteBlock(CommandBlock block)
@@ -21,37 +80,13 @@ namespace ParserFramework.Examples.Script
             foreach (var cmd in block.commands)
             {
                 Execute(cmd);
+                if (onLoop > 0 && breakSet) break;
             }
         }
 
         private static void ExecuteIfCmd(IfCommand ifc)
         {
-            float lhs = ExpressionEvaluator.Evaluate(ifc.condition.expr);
-            if (ifc.condition.comparation == null)
-            {
-                // no rhs on condition, evaluate lhs as bool
-                Execute(lhs != 0, ifc);
-            }
-            else
-            {
-                float rhs = ExpressionEvaluator.Evaluate(ifc.condition.comparation.expr);
-                switch(ifc.condition.comparation.signal)
-                {
-                    case ">":
-                        Execute(lhs > rhs, ifc);
-                        break;
-                    case "<":
-                        Execute(lhs < rhs, ifc);
-                        break;
-                    case "==":
-                        Execute(lhs == rhs, ifc);
-                        break;
-                }
-            }
-        }
-        static void Execute(bool condition, IfCommand ifc)
-        {
-            if (condition)
+            if (ConditionEvaluator.Evaluate(ifc.condition))
                 Execute(ifc.command);
             else if (ifc.elseCommand != null)
                 Execute(ifc.elseCommand);
@@ -61,8 +96,7 @@ namespace ParserFramework.Examples.Script
         {
             if(attr is ExpressionAttribuition ea)
             {
-                if (variables.ContainsKey(ea.varName)) variables.Remove(ea.varName);
-                variables.Add(ea.varName, ExpressionEvaluator.Evaluate(ea.expression));
+                Memory.Save(ea.varName, ExpressionEvaluator.Evaluate(ea.expression));
             }
         }
 
@@ -80,9 +114,18 @@ namespace ParserFramework.Examples.Script
 
         static void ExecuteList()
         {
-            foreach (var v in Executor.variables)
+            foreach (var v in Memory.Variables)
             {
                 Console.WriteLine(v.Key + " = " + v.Value);
+            }
+        }
+
+        static void ExecuteRead(ReadCmd cmd)
+        {
+            string input = Console.ReadLine();
+            if (float.TryParse(input, out float value))
+            {
+                Memory.Save(cmd.varName, value);
             }
         }
     }

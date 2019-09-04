@@ -50,59 +50,59 @@ namespace ParserFramework.Examples.Script
         }
         public static Attribuition CreateAttribuition(ParsingInfo info)
         {
-            foreach (var pair in info)
+            var exprAttr = info.GetChild("ExprAttr");
+            if (exprAttr != null) 
             {
-                if (pair.Key == "ExprAttr")
-                {
-                    return CreateExpressionAttribuition(pair.Value.AsChild);
-                }
+                return CreateExpressionAttribuition(exprAttr);
             }
             return null;
         }
         static ExpressionAttribuition CreateExpressionAttribuition(ParsingInfo info)
         {
             ExpressionAttribuition attr = new ExpressionAttribuition();
-            foreach (var pair in info)
+
+            var varToken = info.GetToken("varName") as IdToken;
+            if (varToken == null)
             {
-                if (pair.Key == "varName")
-                {
-                    var token = pair.Value.AsToken as IdToken;
-                    attr.varName = token.Value;
-                }
-                else if (pair.Key == "expr")
-                {
-                    attr.expression = CreateExpression(pair.Value.AsChild);
-                }
+                throw new Exception("no varName");
             }
+            attr.varName = varToken.Value;
+
+            attr.expression = CreateExpression(info.GetChild("expr"));
+            if (attr.expression == null)
+            {
+                throw new Exception("no expr");
+            }
+
             return attr;
+        }
+        static PrintCommand.Arg CreateArg(ParsingInfo info)
+        {
+            var expr = info.GetChild("expr");
+            if (expr != null)
+            {
+                return new PrintCommand.Arg() { expression = CreateExpression(expr) };
+            }
+            var str = info.GetToken("string") as Rules.StringToken;
+            if (str != null)
+            {
+                return new PrintCommand.Arg() { str = str.Value };
+            }
+
+            PrintContentNames("arg", info);
+            throw new Exception("Unrecognized print arg");
         }
         static PrintCommand CreatePrintCommand(ParsingInfo info)
         {
             PrintCommand cmd = new PrintCommand();
-            foreach(var pair in info)
+
+            ParsingInfo args = info.GetChild("arg");
+            if (args != null) // multiple
             {
-                if(pair.Key == "arg")
+                foreach (var arg in args)
                 {
-                    foreach (var child in pair.Value.AsChild)
-                    {
-                        foreach (var item in child.Value.AsChild)
-                        {
-                            if (item.Key == "expr")
-                            {
-                                cmd.ArgList.Add(CreateExpression(item.Value.AsChild));
-                                break;
-                            }
-                            else if (item.Key == "string")
-                            {
-                                var token = item.Value.AsToken as Rules.StringToken;
-                                cmd.ArgList.Add(token.Value);
-                                break;
-                            }
-                            else Console.WriteLine(child.Key + " has '" + item.Key + "'");
-                        }
-                    }
+                    cmd.ArgList.Add(CreateArg(arg.Value.AsChild));
                 }
-                else Console.WriteLine("Print has '" + pair.Key + "'");
             }
             return cmd;
         }
@@ -158,7 +158,7 @@ namespace ParserFramework.Examples.Script
         }
         static string GetContentNames(ParsingInfo info)
         {
-            return info.ReduceToString(p => p.Key, ", ");
+            return info.ReduceToString(p => p.Key + ":" + (p.Value.AsChild != null ? "child" : "token"), ", ");
         }
     }
 

@@ -27,7 +27,6 @@ namespace ParserFramework.Examples.Script
                 () => new SymbolRule("{"){ignore=true},
                 () => new ChangeRuleKind(Command, ParseRule.Kind.Multiple, "Commands"),
                 () => new SymbolRule("}"){ignore=true},
-
             }
         };
 

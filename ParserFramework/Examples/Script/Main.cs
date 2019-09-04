@@ -35,7 +35,6 @@ namespace ParserFramework.Examples.Script
                 multiLineInput += input + "\n";
             }
             multiLineInput += "}";
-            Console.WriteLine(multiLineInput);
             Execute(multiLineInput);
         }
 

@@ -141,13 +141,26 @@ namespace ParserFramework.Examples.Script
             rules = new List<ParseRule>()
             {
                 Scope,
-
+                new IdRule(){ name = "varName" },
+                VarInit
             }
         };
-        static ParseRule Scope = new GroupRule("scope")
+        static ParseRule Scope => new AlternateRule("scope")
         {
-            
-        }
+            kind = ParseRule.Kind.Optional,
+            possibilities = new List<ParseRule>()
+            {
+                new IdRule("global", "local") { name = "type" },
+            }
+        };
+        static ParseRule VarInit => new GroupRule("VarInit")
+        {
+            rules = new List<ParseRule>()
+            {
+                new SymbolRule("="),
+                Expression("expr"),
+            }
+        };
 
         public class StringToken : Token
         {

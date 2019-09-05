@@ -21,6 +21,7 @@ namespace ParserFramework.Examples.Script
                 RunCmd,
                 WhileCmd,
                 BreakCmd,
+                VarDeclCmd,
             }
         };
 
@@ -135,6 +136,19 @@ namespace ParserFramework.Examples.Script
             }
         };
 
+        static ParseRule VarDeclCmd => new GroupRule("VarDecl")
+        {
+            rules = new List<ParseRule>()
+            {
+                Scope,
+
+            }
+        };
+        static ParseRule Scope = new GroupRule("scope")
+        {
+            
+        }
+
         public class StringToken : Token
         {
             public readonly string Value;
@@ -144,7 +158,7 @@ namespace ParserFramework.Examples.Script
             }
             public override string ToString()
             {
-                return "STRING " + Value;
+                return "STRING \"" + Value + "\"";
             }
         }
 

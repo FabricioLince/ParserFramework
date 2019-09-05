@@ -33,7 +33,7 @@ namespace ParserFramework.Examples.Script
             else if (command is ReadCmd read) ExecuteRead(read);
             else if (command is RunCmd run) ExecuteRun(run);
             else if (command is WhileCmd w) ExecuteWhile(w);
-            else if (command is BreakCmd)  breakSet = true; 
+            else if (command is BreakCmd) { if (onLoop > 0) breakSet = true; }
         }
 
         private static void ExecuteWhile(WhileCmd w)

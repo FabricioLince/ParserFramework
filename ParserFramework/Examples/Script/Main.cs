@@ -9,7 +9,7 @@ namespace ParserFramework.Examples.Script
             while (true)
             {
                 string input = Console.ReadLine();
-                if (input == ".")
+                if (input == "{")
                 {
                     MultiLineInput();
                 }
@@ -27,11 +27,16 @@ namespace ParserFramework.Examples.Script
         static void MultiLineInput()
         {
             string multiLineInput = "{\n"; // surround with {} for it to be treated as a command block
+            int level = 1;
             while (true)
             {
-                Console.Write(".");
+                Console.Write(" ");
                 string input = Console.ReadLine();
-                if (input == ".") break;
+
+                if (input == "{") level++;
+                else if (input == "}") level--;
+
+                if (level == 0) break;
                 multiLineInput += input + "\n";
             }
             multiLineInput += "}";

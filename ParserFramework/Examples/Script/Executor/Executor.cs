@@ -68,12 +68,14 @@ namespace ParserFramework.Examples.Script
                     }
                 }
                 content += "}";
+                //Console.WriteLine("Executing " + content);
+                var cmd = Parser.Parse(content);
+                //Console.WriteLine(cmd);
                 Execute(content);
             }
             catch(FileNotFoundException e)
             {
                 Console.WriteLine(e.Message);
-                //Console.WriteLine("File " + run.fileName + " couldn't be found");
             }
         }
 

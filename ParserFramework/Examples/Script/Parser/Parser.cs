@@ -68,7 +68,7 @@ namespace ParserFramework.Examples.Script
                 {
                     return CreateFunDecl(pair.Value.AsChild);
                 }
-                else if(pair.Key == "FunCall")
+                else if (pair.Key == "FunCall")
                 {
                     return CreateFunCall(pair.Value.AsChild);
                 }
@@ -81,21 +81,9 @@ namespace ParserFramework.Examples.Script
         {
             var cmd = new WhileCmd();
 
-            var condition = info.GetChild("condition");
-            if (condition == null)
-            {
-                PrintContentNames("WhileCmd", info);
-                throw new Exception("condition missing");
-            }
-            cmd.condition = CreateCondition(condition);
+            cmd.condition = CreateCondition(info.MandatoryChild("condition"));
 
-            var command = info.GetChild("Command");
-            if (command == null)
-            {
-                PrintContentNames("WhileCmd", info);
-                throw new Exception("command missing");
-            }
-            cmd.command = CreateCommand(command);
+            cmd.command = CreateCommand(info.MandatoryChild("Command"));
 
             return cmd;
         }
@@ -104,14 +92,7 @@ namespace ParserFramework.Examples.Script
         {
             var cmd = new RunCmd();
 
-            var stringToken = info.GetToken("fileName") as Rules.StringToken;
-            if (stringToken == null)
-            {
-                PrintContentNames("RunCmd", info);
-                throw new Exception("fileName missing");
-            }
-
-            cmd.fileName = stringToken.Value;
+            cmd.fileName = info.MandatoryToken<Rules.StringToken>("fileName").Value;
 
             return cmd;
         }
@@ -129,18 +110,9 @@ namespace ParserFramework.Examples.Script
         {
             ExpressionAttribuition attr = new ExpressionAttribuition();
 
-            var varToken = info.GetToken("varName") as IdToken;
-            if (varToken == null)
-            {
-                throw new Exception("no varName");
-            }
-            attr.varName = varToken.Value;
+            attr.varName = info.MandatoryToken<IdToken>("varName").Value;
 
-            attr.expression = CreateExpression(info.GetChild("expr"));
-            if (attr.expression == null)
-            {
-                throw new Exception("no expr");
-            }
+            attr.expression = CreateExpression(info.MandatoryChild("expr"));
 
             return attr;
         }
@@ -157,20 +129,17 @@ namespace ParserFramework.Examples.Script
                 return new PrintCommand.Arg() { str = str.Value };
             }
 
-            PrintContentNames("arg", info);
+            info.PrintContentNames();
             throw new Exception("Unrecognized print arg");
         }
         static PrintCommand CreatePrintCommand(ParsingInfo info)
         {
             PrintCommand cmd = new PrintCommand();
 
-            ParsingInfo args = info.GetChild("arg");
-            if (args != null) // multiple
+            var args = info.MultipleChildren("arg");
+            foreach (var arg in args)
             {
-                foreach (var arg in args)
-                {
-                    cmd.ArgList.Add(CreateArg(arg.Value.AsChild));
-                }
+                cmd.ArgList.Add(CreateArg(arg));
             }
             return cmd;
         }
@@ -182,19 +151,9 @@ namespace ParserFramework.Examples.Script
         {
             IfCommand cmd = new IfCommand();
 
-            cmd.condition = CreateCondition(info.GetChild("condition"));
-            if (cmd.condition == null)
-            {
-                PrintContentNames("IfCmd", info);
-                throw new Exception("IfCmd doesn't have 'condition'");
-            }
+            cmd.condition = CreateCondition(info.MandatoryChild("condition"));
 
-            cmd.command = CreateCommand(info.GetChild("Command"));
-            if (cmd.command == null)
-            {
-                PrintContentNames("IfCmd", info);
-                throw new Exception("IfCmd doesn't have 'Command'");
-            }
+            cmd.command = CreateCommand(info.MandatoryChild("Command"));
 
             cmd.elseCommand = CreateElse(info.GetChild("else"));
 
@@ -209,13 +168,12 @@ namespace ParserFramework.Examples.Script
         static Command CreateCommandBlock(ParsingInfo info)
         {
             CommandBlock block = new CommandBlock();
-            var commands = info.GetChild("Commands");
-            if (commands != null) // Multiple
+
+            var commands = info.MultipleChildren("Commands");
+            foreach (var cmd in commands)
             {
-                foreach (var cmd in commands)
-                {
-                    block.commands.Add(CreateCommand(cmd.Value.AsChild));
-                }
+                block.commands.Add(CreateCommand(cmd));
+                //Console.WriteLine("created command " + block.commands[block.commands.Count - 1]);
             }
             return block;
         }
@@ -223,13 +181,7 @@ namespace ParserFramework.Examples.Script
         static Command CreateReadCommand(ParsingInfo info)
         {
             ReadCmd cmd = new ReadCmd();
-            var idToken = info.GetToken("varName") as IdToken;
-            if (idToken == null)
-            {
-                PrintContentNames("read", info);
-                throw new Exception("varName missing");
-            }
-            cmd.varName = idToken.Value;
+            cmd.varName = info.MandatoryToken<IdToken>("varName").Value;
 
             return cmd;
         }
@@ -237,9 +189,9 @@ namespace ParserFramework.Examples.Script
         static Command CreateVarDeclCommand(ParsingInfo info)
         {
             VarDeclCmd cmd = new VarDeclCmd();
-            
-            var scopeToken = info.MandatoryToken<IdToken>("VarDecl", "scope");
-            switch(scopeToken.Value)
+
+            var scopeToken = info.MandatoryToken<IdToken>("scope");
+            switch (scopeToken.Value)
             {
                 case "local":
                     cmd.scope = VarDeclCmd.Scope.LOCAL;
@@ -249,13 +201,13 @@ namespace ParserFramework.Examples.Script
                     break;
             }
 
-            var varNameToken = info.MandatoryToken<IdToken>("VarDecl", "varName");
+            var varNameToken = info.MandatoryToken<IdToken>("varName");
             cmd.varName = varNameToken.Value;
 
             var init = info.GetChild("VarInit");
-            if(init!=null)
+            if (init != null)
             {
-                var expr = init.MandatoryChild("VarDecl", "expr");
+                var expr = init.MandatoryChild("expr");
                 cmd.initializer = CreateExpression(expr);
             }
 
@@ -266,24 +218,24 @@ namespace ParserFramework.Examples.Script
         {
             var funDecl = new FunDeclCmd();
 
-            var nameToken = info.MandatoryToken<IdToken>("FunDecl", "funName");
+            var nameToken = info.MandatoryToken<IdToken>("funName");
             funDecl.funName = nameToken.Value;
 
             var parameters = info.GetChild("FunParam");
             if (parameters != null)
             {
-                var argToken = parameters.MandatoryToken<IdToken>("FunParam", "param0");
+                var argToken = parameters.MandatoryToken<IdToken>("param0");
                 funDecl.parameters.Add(argToken.Value);
-                var otherArgs = parameters.MultipleChildren("FunParam", "MoreParams");
+                var otherArgs = parameters.MultipleChildren("MoreParams");
                 foreach (var otherArg in otherArgs)
                 {
-                    funDecl.parameters.Add(otherArg.MandatoryToken<IdToken>("FunParam", "param").Value);
+                    funDecl.parameters.Add(otherArg.MandatoryToken<IdToken>("param").Value);
                 }
             }
 
-            funDecl.command = CreateCommand(info.MandatoryChild("FunDecl", "Command"));
+            funDecl.command = CreateCommand(info.MandatoryChild("Command"));
 
-            //Console.WriteLine(funDecl);
+            Console.WriteLine(funDecl);
 
             return funDecl;
         }
@@ -292,69 +244,23 @@ namespace ParserFramework.Examples.Script
         {
             var funCall = new FunCallCmd();
 
-            funCall.funName = info.MandatoryToken<IdToken>("FunCall", "funName").Value;
+            funCall.funName = info.MandatoryToken<IdToken>("funName").Value;
 
             var args = info.GetChild("FunArgs");
             if (args != null)
             {
-                funCall.args.Add(CreateExpression(args.MandatoryChild("FunArgs", "arg0")));
+                funCall.args.Add(CreateExpression(args.MandatoryChild("arg0")));
 
-                var otherArgs = args.MultipleChildren("FunArgs", "MoreArgs");
-                foreach(var otherArg in otherArgs)
+                var otherArgs = args.MultipleChildren("MoreArgs");
+                foreach (var otherArg in otherArgs)
                 {
-                    funCall.args.Add(CreateExpression(args.MandatoryChild("FunArgs", "arg")));
+                    funCall.args.Add(CreateExpression(args.MandatoryChild("arg")));
                 }
             }
 
-            //Console.WriteLine(funCall);
+            Console.WriteLine(funCall);
 
             return funCall;
-        }
-
-        static List<ParsingInfo> MultipleChildren(this ParsingInfo info, string infoName, string childName)
-        {
-            var list = new List<ParsingInfo>();
-            var chldren = info.GetChild(childName);
-            if (chldren != null) // Multiple
-            {
-                foreach (var child in chldren)
-                {
-                    list.Add(child.Value.AsChild);
-                }
-            }
-            return list;
-        }
-
-        static ParsingInfo MandatoryChild(this ParsingInfo info, string infoName, string childName)
-        {
-            var child = info.GetChild(childName);
-            AssertMandatory(info, infoName, child, childName);
-            return child;
-        }
-
-        static T MandatoryToken<T>(this ParsingInfo info, string infoName, string tokenName) where T : Token
-        {
-            var token = info.GetToken(tokenName) as T;
-            AssertMandatory(info, infoName, token, tokenName);
-            return token;
-        }
-
-        static void AssertMandatory(ParsingInfo info, string infoName, object child, string childName)
-        {
-            if (child == null)
-            {
-                PrintContentNames(infoName, info);
-                throw new Exception("Missing " + childName);
-            }
-        }
-
-        static void PrintContentNames(string name, ParsingInfo info)
-        {
-            Console.WriteLine(name + " has " + GetContentNames(info));
-        }
-        static string GetContentNames(ParsingInfo info)
-        {
-            return info.ReduceToString(p => p.Key + ":" + (p.Value.AsChild != null ? "child" : "token"), ", ");
         }
     }
 

@@ -61,6 +61,11 @@ namespace ParserFramework.Examples.Script
     public class CommandBlock : Command
     {
         public List<Command> commands = new List<Command>();
+
+        public override string ToString()
+        {
+            return "{\n" + commands.ReduceToString("\n") + "}";
+        }
     }
 
     public class ReadCmd : Command
@@ -71,17 +76,30 @@ namespace ParserFramework.Examples.Script
     public class RunCmd : Command
     {
         public string fileName;
+
+        public override string ToString()
+        {
+            return "run " + fileName;
+        }
     }
 
     public class WhileCmd : Command
     {
         public Condition condition;
         public Command command;
+
+        public override string ToString()
+        {
+            return "while " + command.ToString();
+        }
     }
 
     public class BreakCmd : Command
     {
-
+        public override string ToString()
+        {
+            return "break";
+        }
     }
 
     public class VarDeclCmd : Command
@@ -90,6 +108,11 @@ namespace ParserFramework.Examples.Script
         public Scope scope = Scope.LOCAL;
         public string varName;
         public Expression initializer;
+
+        public override string ToString()
+        {
+            return scope + " " + varName + (initializer?.ToString() ?? "");
+        }
     }
 
     public class FunDeclCmd : Command
@@ -100,7 +123,7 @@ namespace ParserFramework.Examples.Script
 
         public override void Execute()
         {
-            if(Memory.Functions.ContainsKey(funName))
+            if (Memory.Functions.ContainsKey(funName))
             {
                 System.Console.WriteLine("Overwriting fun " + funName);
                 Memory.Functions.Remove(funName);
@@ -119,7 +142,7 @@ namespace ParserFramework.Examples.Script
         }
     }
 
-    public class FunCallCmd:Command
+    public class FunCallCmd : Command
     {
         public string funName;
         public List<Expression> args = new List<Expression>();

@@ -7,6 +7,7 @@ namespace ParserFramework.Core
 {
     public class ParsingInfo : IEnumerable<KeyValuePair<string, ParsingInfo.Info>>
     {
+        public string name;
         public static readonly ParsingInfo Empty = new ParsingInfo();
         public bool IsEmpty => info.Count == 0;
 
@@ -28,6 +29,7 @@ namespace ParserFramework.Core
         public ChildInfo Add(string name, ParsingInfo child)
         {
             if (name == null) throw new ArgumentException("name can't be null");
+            child.name = name;
             var childInfo = new ChildInfo() { name = name, child = child };
             info.Add(name, childInfo);
             return childInfo;

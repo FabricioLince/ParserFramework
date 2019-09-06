@@ -26,7 +26,6 @@ namespace ParserFramework.Examples.Script
                 FunCall,
                 ReturnCmd,
                 new TokenRule<CommentToken>(){ ignore=true },
-                new SymbolRule(";"){ignore=true}
             }
         };
 

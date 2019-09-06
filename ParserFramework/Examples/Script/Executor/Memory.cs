@@ -4,58 +4,57 @@ namespace ParserFramework.Examples.Script
 {
     public static partial class Memory
     {
-        public class Variable
-        {
-            public string name;
-            public int scope;
-            public float value;
-
-            public const int GlobalScope = 0;
-        }
-
         public static Dictionary<string, Variable> Variables { get; private set; } = new Dictionary<string, Variable>();
 
         public static int currentScope = 0;
 
-        public static void Save(string varName, float value)
+        public static void Save(string varName, Variable v)
         {
-            if (Variables.ContainsKey(varName))// Check scope??
+            if (Variables.ContainsKey(varName))// Check scope an type??
             {
-                Variables[varName].value = value;
-                return;
-            }
-            Variables.Add(varName, 
-                new Variable()
-                {
-                    name = varName,
-                    value = value,
-                    scope = currentScope
-                });
-        }
-        public static void SaveGlobal(string varName, float value)
-        {
-            if (Variables.ContainsKey(varName)) // Check scope??
-            {
-                Variables[varName].value = value;
+                int scope = Variables[varName].scope;
+                Variables[varName] = v;
+                Variables[varName].scope = scope;
                 return;
             }
             Variables.Add(varName,
                 new Variable()
                 {
-                    name = varName,
-                    value = value,
-                    scope = 0
+                    //name = varName,
+                    Value = v.Value,
+                    type = v.type,
+                    scope = currentScope
                 });
+            //System.Console.WriteLine("Saving " + varName + " scope=" + currentScope);
+        }
+        public static void Save(string varName, float value)
+        {
+            Save(varName, new Variable() { /*name = varName,*/ type = Variable.Type.FLOAT, Value = value });
+        }
+        public static void SaveGlobal(string varName, float value)
+        {
+            Save(varName, value);
+            Variables[varName].scope = Variable.GlobalScope;
+        }
+        public static void SaveGlobal(string varName, Variable v)
+        {
+            Save(varName, v);
+            Variables[varName].scope = Variable.GlobalScope;
         }
         public static bool Get(string varName, out float value)
         {
             if (Variables.ContainsKey(varName))
             {
-                value = Variables[varName].value;
+                value = Variables[varName].Value;
                 return true;
             }
             value = 0;
             return false;
+        }
+        public static Variable Get(string varName)
+        {
+            if (Exists(varName)) return Variables[varName];
+            return null;
         }
         public static bool Exists(string varName) => Variables.ContainsKey(varName);
 

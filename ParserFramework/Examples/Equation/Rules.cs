@@ -91,7 +91,7 @@ namespace ParserFramework.Examples.Equation
                     rules = new List<ParseRule>()
                     {
                         Number,
-                        new IdRule("x"){ name = "var" }
+                        new ReservedWordRule("x"){ name = "var" }
                     }
                 },
                 new GroupRule()
@@ -100,7 +100,7 @@ namespace ParserFramework.Examples.Equation
                     rules = new List<ParseRule>()
                     {
                         new SymbolRule("+", "-"){ name = "signal", kind = ParseRule.Kind.Optional},
-                        new IdRule("x"){ name = "var" }
+                        new ReservedWordRule("x"){ name = "var" }
                     }
                 }
             }

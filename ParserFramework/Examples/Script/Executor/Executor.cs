@@ -111,7 +111,7 @@ namespace ParserFramework.Examples.Script
                 if (arg.str != null)
                     return arg.str;
                 else if (arg.expression != null)
-                    return ExpressionEvaluator.Evaluate(arg.expression).ToString();
+                    return ExpressionEvaluator.Evaluate(arg.expression).Value.ToString();
                 return "";
             }, " "));
         }
@@ -120,7 +120,7 @@ namespace ParserFramework.Examples.Script
         {
             foreach (var v in Memory.Variables)
             {
-                Console.WriteLine(v.Key + " = " + v.Value.value + " (" + v.Value.scope + ")");
+                Console.WriteLine(v.Value.type + " " + v.Key + " = " + v.Value.Value + " (" + v.Value.scope + ")");
             }
         }
 
@@ -141,7 +141,7 @@ namespace ParserFramework.Examples.Script
             }
             else
             {
-                float value = 0;
+                var value = new Memory.Variable();
 
                 if (cmd.initializer != null)
                 {

@@ -24,6 +24,7 @@ namespace ParserFramework.Examples.Script
                 VarDeclCmd,
                 FunDecl,
                 FunCall,
+                ReturnCmd,
             }
         };
 
@@ -59,7 +60,7 @@ namespace ParserFramework.Examples.Script
         {
             rules = new List<ParseRule>()
             {
-                new IdRule("print"){ ignore = true },
+                new ReservedWordRule("print"){ ignore = true },
                 PrintArg,
                 new SymbolRule(";"){ignore=true, kind = ParseRule.Kind.Optional}
             }
@@ -78,7 +79,7 @@ namespace ParserFramework.Examples.Script
         {
             rules = new List<ParseRule>()
             {
-                new IdRule("list")
+                new ReservedWordRule("list")
             }
         };
 
@@ -86,7 +87,7 @@ namespace ParserFramework.Examples.Script
         {
             rulesF = new List<System.Func<ParseRule>>()
             {
-                () => new IdRule("if"){ ignore=true },
+                () => new ReservedWordRule("if"){ ignore=true },
                 () => Condition,
                 () => Command,
                 () => ElseBlock
@@ -97,7 +98,7 @@ namespace ParserFramework.Examples.Script
             kind = ParseRule.Kind.Optional,
             rulesF = new List<System.Func<ParseRule>>()
             {
-                () => new IdRule("else"){ignore=true},
+                () => new ReservedWordRule("else"){ignore=true},
                 () => Command
             }
         };
@@ -106,7 +107,7 @@ namespace ParserFramework.Examples.Script
         {
             rules = new List<ParseRule>()
             {
-                new IdRule("read"){ignore=true},
+                new ReservedWordRule("read"){ignore=true},
                 new IdRule(){name = "varName"}
             }
         };
@@ -115,7 +116,7 @@ namespace ParserFramework.Examples.Script
         {
             rules = new List<ParseRule>()
             {
-                new IdRule("run"){ignore=true},
+                new ReservedWordRule("run"){ignore=true},
                 new TokenRule<StringToken>(){name="fileName"}
             }
         };
@@ -124,7 +125,7 @@ namespace ParserFramework.Examples.Script
         {
             rulesF = new List<System.Func<ParseRule>>()
             {
-                () => new IdRule("while"){ignore=true},
+                () => new ReservedWordRule("while"){ignore=true},
                 () => Condition,
                 () => Command
             }
@@ -134,7 +135,7 @@ namespace ParserFramework.Examples.Script
         {
             rules = new List<ParseRule>()
             {
-                new IdRule("break")
+                new ReservedWordRule("break")
             }
         };
 
@@ -151,7 +152,7 @@ namespace ParserFramework.Examples.Script
         {
             possibilities = new List<ParseRule>()
             {
-                new IdRule("global", "local") { name = "scope" },
+                new ReservedWordRule("global", "local") { name = "scope" },
             }
         };
         static ParseRule VarInit => new GroupRule("VarInit")
@@ -168,7 +169,7 @@ namespace ParserFramework.Examples.Script
         {
             rulesF = new List<System.Func<ParseRule>>()
             {
-                () => new IdRule("fun"),
+                () => new ReservedWordRule("fun"),
                 () => new IdRule(){name ="funName"},
                 () => new SymbolRule("("),
                 () => FunParam,
@@ -220,6 +221,14 @@ namespace ParserFramework.Examples.Script
                         new NumberRule(){name="arg"}
                     }
                 }
+            }
+        };
+        static ParseRule ReturnCmd => new GroupRule("ReturnCmd")
+        {
+            rules = new List<ParseRule>()
+            {
+                new ReservedWordRule("return"),
+                Expression("expr")
             }
         };
 

@@ -99,6 +99,11 @@ namespace ParserFramework.Examples.Script
 
         public override void Execute()
         {
+            if(Memory.Functions.ContainsKey(funName))
+            {
+                System.Console.WriteLine("Overwriting fun " + funName);
+                Memory.Functions.Remove(funName);
+            }
             Memory.Functions.Add(funName, new Memory.Function()
             {
                 name = funName,

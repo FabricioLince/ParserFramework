@@ -140,6 +140,7 @@ namespace ParserFramework.Examples.Script
                 {
                     var valueToken = pair.Value.AsToken as NumberToken;
                     number.value = valueToken.Value;
+                    number.type = (valueToken is FloatToken) ? Memory.Variable.Type.FLOAT : Memory.Variable.Type.INT;
                 }
                 else if (pair.Key == "signal")
                 {
@@ -215,6 +216,7 @@ namespace ParserFramework.Examples.Script
     public abstract class Term { }
     public class Number : Term
     {
+        public Memory.Variable.Type type;
         public float value;
         public override string ToString()
         {

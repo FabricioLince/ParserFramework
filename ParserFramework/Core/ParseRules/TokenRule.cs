@@ -90,9 +90,13 @@ namespace ParserFramework.Core.ParseRules
 
     public class IdRule : TokenRule<IdToken>
     {
+    }
+
+    public class ReservedWordRule : TokenRule<IdToken>
+    {
         List<string> acceptedIds;
-        public IdRule(params string[] acceptedIds)
-            : base(token => acceptedIds.Length == 0 || acceptedIds.Contains(token.Value))
+        public ReservedWordRule(params string[] acceptedIds)
+            : base(token => acceptedIds.Contains(token.Value))
         {
             this.acceptedIds = new List<string>(acceptedIds);
         }

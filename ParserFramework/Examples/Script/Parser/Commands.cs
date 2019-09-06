@@ -3,6 +3,7 @@
 namespace ParserFramework.Examples.Script
 {
     public abstract class Command { public virtual void Execute() { } }
+    public class DoNothingCmd : Command { }
     public abstract class Attribuition : Command { }
     public class ExpressionAttribuition : Attribuition
     {

@@ -25,6 +25,7 @@ namespace ParserFramework.Examples.Script
                 FunDecl,
                 FunCall,
                 ReturnCmd,
+                new TokenRule<CommentToken>(){ ignore=true },
             }
         };
 
@@ -245,16 +246,39 @@ namespace ParserFramework.Examples.Script
             }
         }
 
+        public class CommentToken : Token
+        {
+            public CommentToken() : base(Kind.CUSTOM) { }
+            public override string ToString()
+            {
+                return "COMMENT";
+            }
+        }
+
         public static TokenList DefaultTokenList(string input)
         {
             Tokenizer tokenizer = new Tokenizer(new StringReader(input));
-            tokenizer.rules.Add(new Regex("^\'([^\"\n])*\'"), m => new StringToken(m.Value.Substring(1, m.Value.Length - 2)));
-            tokenizer.rules.Add(new Regex("^\"([^\"\n])*\""), m => new StringToken(m.Value.Substring(1, m.Value.Length - 2)));
+            
+            tokenizer.AddRegexRule(new Regex("^\'([^\"\n])*\'"), m => new StringToken(m.Value.Substring(1, m.Value.Length - 2)));
+            tokenizer.AddRegexRule(new Regex("^\"([^\"\n])*\""), m => new StringToken(m.Value.Substring(1, m.Value.Length - 2)));
 
-            tokenizer.rules.Add(new Regex(@"^([0-9]+)"), m => new IntToken(int.Parse(m.Value)));
-            tokenizer.rules.Add(new Regex(@"^([0-9]+(?:\.[0-9]+)?)"), m => new FloatToken(float.Parse(m.Value.Replace('.', ','))));
-            tokenizer.rules.Add(new Regex(@"^(\w+)"), m => new IdToken(m.Value));
-            tokenizer.rules.Add(Core.Utils.RegexForSymbols("=="), m => new SymbolToken("=="));
+            tokenizer.AddRegexRule(new Regex(@"^([0-9]+)"), m => new IntToken(int.Parse(m.Value)));
+            tokenizer.AddRegexRule(new Regex(@"^([0-9]+(?:\.[0-9]+)?)"), m => new FloatToken(float.Parse(m.Value.Replace('.', ','))));
+            tokenizer.AddRegexRule(new Regex(@"^(\w+)"), m => new IdToken(m.Value));
+
+            tokenizer.AddSymbolRule("==");
+            tokenizer.AddSpecialRule(c =>
+            {
+                if (char.IsSymbol(c) || char.IsPunctuation(c)) 
+                {
+                    return new SymbolToken(c);
+                }
+                return null;
+            });
+
+            tokenizer.AddRegexRule(new Regex(@"^\/\/.*\n"), m => new CommentToken());
+
+            tokenizer.ignore = c => char.IsWhiteSpace(c);
 
             TokenList list = new TokenList(tokenizer);
             return list;

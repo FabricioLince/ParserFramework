@@ -40,5 +40,11 @@ namespace ParserFramework.Core
         {
             return new Regex(PatternForSymbols(symbols));
         }
+
+
+        public static void AddSymbolRule(this Tokenizer tokenizer, string symbolString)
+        {
+            tokenizer.rules.Add(Utils.RegexForSymbols(symbolString), m => new SymbolToken(symbolString));
+        }
     }
 }

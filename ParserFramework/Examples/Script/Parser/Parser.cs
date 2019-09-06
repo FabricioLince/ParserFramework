@@ -74,7 +74,7 @@ namespace ParserFramework.Examples.Script
                 }
                 else Console.WriteLine("Command has '" + pair.Key + "'");
             }
-            return null;
+            return new DoNothingCmd();
         }
 
         private static Command CreateWhileCommand(ParsingInfo info)

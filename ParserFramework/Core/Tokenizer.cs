@@ -5,6 +5,9 @@ using System.Text.RegularExpressions;
 
 namespace ParserFramework.Core
 {
+    using TokenRule = Func<Match, Token>;
+    using SpecialRule = Func<char, Token>;
+
     public class Tokenizer
     {
         readonly string buffer;
@@ -27,8 +30,16 @@ namespace ParserFramework.Core
         public string Text { get; private set; }
 
         int lineNumber, collumnNumber = 0;
+        
+        public Dictionary<Regex, TokenRule> rules = new Dictionary<Regex, TokenRule>();
+        public Func<char, bool> ignore = c => false;
+        List<SpecialRule> specialSymbolRules = new List<SpecialRule>();
 
-        public Dictionary<Regex, Func<Match, Token>> rules = new Dictionary<Regex, Func<Match, Token>>();
+        public enum PrioritizeMatchKind
+        {
+            First, Last, Longest, Shortest
+        }
+        public PrioritizeMatchKind prioritizeMethod = PrioritizeMatchKind.Longest;
 
         public Tokenizer(TextReader reader)
         {
@@ -38,7 +49,7 @@ namespace ParserFramework.Core
 
         public Token NextToken()
         {
-            while (!EOF && char.IsWhiteSpace(CurrentChar))
+            while (!EOF && ignore(CurrentChar))
             {
                 collumnNumber++;
                 if (CurrentChar == '\n')
@@ -52,7 +63,7 @@ namespace ParserFramework.Core
             if (EOF) return Construct(Token.EOF);
 
             Match bestMatch = null;
-            Func<Match, Token> bestFunc = null;
+            TokenRule bestFunc = null;
 
             foreach (var rule in rules)
             {
@@ -65,11 +76,33 @@ namespace ParserFramework.Core
                     {
                         bestMatch = m;
                         bestFunc = rule.Value;
+                        if (prioritizeMethod == PrioritizeMatchKind.First) break;
                     }
-                    else if (m.Length > bestMatch.Length)
+                    else
                     {
-                        bestMatch = m;
-                        bestFunc = rule.Value;
+                        switch (prioritizeMethod)
+                        {
+                            case PrioritizeMatchKind.First:
+                                break;
+                            case PrioritizeMatchKind.Last:
+                                bestMatch = m;
+                                bestFunc = rule.Value;
+                                break;
+                            case PrioritizeMatchKind.Longest:
+                                if (m.Length > bestMatch.Length)
+                                {
+                                    bestMatch = m;
+                                    bestFunc = rule.Value;
+                                }
+                                break;
+                            case PrioritizeMatchKind.Shortest:
+                                if (m.Length < bestMatch.Length)
+                                {
+                                    bestMatch = m;
+                                    bestFunc = rule.Value;
+                                }
+                                break;
+                        }
                     }
                 }
             }
@@ -78,21 +111,30 @@ namespace ParserFramework.Core
             {
                 Index += bestMatch.Length;
 
-                return Construct(bestFunc(bestMatch), bestMatch.Length);
+                return Construct(bestFunc, bestMatch);
             }
-            var chara = ' ';
-            if (char.IsSymbol(CurrentChar) || char.IsPunctuation(CurrentChar))
+
+            foreach(var symbolRule in specialSymbolRules)
             {
-                chara = CurrentChar;
-                Index += 1;
+                var token = symbolRule(CurrentChar);
+                if (token)
+                {
+                    var chara = CurrentChar;
+                    Index += 1;
 
-                return Construct(new SymbolToken(chara));
+                    return Construct(token);
+                }
             }
 
-            chara = CurrentChar;
             Index += 1;
 
             return Construct(Token.UNKNOWN);
+        }
+
+        Token Construct(TokenRule rule, Match match)
+        {
+            var token = rule(match);
+            return Construct(token, match.Length);
         }
 
         Token Construct(Token token, int skip = 1)
@@ -101,6 +143,15 @@ namespace ParserFramework.Core
             token.collumnNumber = collumnNumber;
             collumnNumber += skip;
             return token;
+        }
+
+        public void AddRegexRule(Regex regex, TokenRule rule)
+        {
+            rules.Add(regex, rule);
+        }
+        public void AddSpecialRule(Func<char, Token> rule)
+        {
+            specialSymbolRules.Add(rule);
         }
     }
 

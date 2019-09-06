@@ -9,7 +9,7 @@ namespace ParserFramework.Examples.Expression
 {
     public class Parser
     {
-        public static ParseRule Main => AdditionRule;
+        public static ParseRule Main = AdditionRule;
 
         public static ParseRule AdditionRule => new GroupRule()
         {
@@ -94,7 +94,14 @@ namespace ParserFramework.Examples.Expression
             Tokenizer tokenizer = new Tokenizer(new StringReader(input));
             tokenizer.rules.Add(new Regex(@"^([0-9]+)"), m => new IntToken(int.Parse(m.Value)));
             tokenizer.rules.Add(new Regex(@"^([0-9]+(?:\.[0-9]+)?)"), m => new FloatToken(float.Parse(m.Value.Replace('.', ','))));
-            tokenizer.rules.Add(new Regex(@"^([a-z]+)"), m => new IdToken(m.Value));
+
+            tokenizer.AddSpecialRule(c =>
+            {
+                if (char.IsSymbol(c) || char.IsPunctuation(c)) return new SymbolToken(c);
+                return null;
+            });
+
+            tokenizer.ignore = c => char.IsWhiteSpace(c);
 
             return new TokenList(tokenizer);
         }

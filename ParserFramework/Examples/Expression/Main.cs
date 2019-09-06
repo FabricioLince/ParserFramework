@@ -19,7 +19,7 @@ namespace ParserFramework.Examples.Expression
                 Console.WriteLine("Errors:");
                 Console.WriteLine(Parser.Main.LastErrors.ReduceToString("\n"));
             }
-
+            Console.ReadKey(true);
         }
     }
 }

@@ -10,8 +10,8 @@ namespace ParserFramework.Examples.Expression
         public static bool TrySolve(string expression, out float result)
         {
             var list = Parser.DefaultTokenList(expression);
-            var expr = Parser.AdditionRule.Execute(list);
-            if (expr != null)
+            var expr = Parser.Main.Execute(list);
+            if (expr != null && list.Current.kind == Token.Kind.EOF)
             {
                 result = SolveAddition(expr);
                 return true;

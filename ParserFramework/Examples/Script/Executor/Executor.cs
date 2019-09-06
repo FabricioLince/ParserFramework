@@ -34,6 +34,8 @@ namespace ParserFramework.Examples.Script
             else if (command is RunCmd run) ExecuteRun(run);
             else if (command is WhileCmd w) ExecuteWhile(w);
             else if (command is BreakCmd) { if (onLoop > 0) breakSet = true; }
+            else if (command is VarDeclCmd decl) ExecuteVarDecl(decl);
+            else command.Execute();
         }
 
         private static void ExecuteWhile(WhileCmd w)
@@ -77,11 +79,13 @@ namespace ParserFramework.Examples.Script
 
         private static void ExecuteBlock(CommandBlock block)
         {
+            Memory.IncreaseScope();
             foreach (var cmd in block.commands)
             {
                 Execute(cmd);
                 if (onLoop > 0 && breakSet) break;
             }
+            Memory.DecreaseScope();
         }
 
         private static void ExecuteIfCmd(IfCommand ifc)
@@ -116,7 +120,7 @@ namespace ParserFramework.Examples.Script
         {
             foreach (var v in Memory.Variables)
             {
-                Console.WriteLine(v.Key + " = " + v.Value);
+                Console.WriteLine(v.Key + " = " + v.Value.value + " (" + v.Value.scope + ")");
             }
         }
 
@@ -126,6 +130,33 @@ namespace ParserFramework.Examples.Script
             if (float.TryParse(input, out float value))
             {
                 Memory.Save(cmd.varName, value);
+            }
+        }
+
+        static void ExecuteVarDecl(VarDeclCmd cmd)
+        {
+            if (Memory.Exists(cmd.varName))
+            {
+                Console.WriteLine(cmd.varName + " is already declared");
+            }
+            else
+            {
+                float value = 0;
+
+                if (cmd.initializer != null)
+                {
+                    value = ExpressionEvaluator.Evaluate(cmd.initializer);
+                }
+
+                switch (cmd.scope)
+                {
+                    case VarDeclCmd.Scope.GLOBAL:
+                        Memory.SaveGlobal(cmd.varName, value);
+                        break;
+                    case VarDeclCmd.Scope.LOCAL:
+                        Memory.Save(cmd.varName, value);
+                        break;
+                }
             }
         }
     }

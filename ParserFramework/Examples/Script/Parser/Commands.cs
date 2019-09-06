@@ -2,7 +2,7 @@
 
 namespace ParserFramework.Examples.Script
 {
-    public abstract class Command { }
+    public abstract class Command { public virtual void Execute() { } }
     public abstract class Attribuition : Command { }
     public class ExpressionAttribuition : Attribuition
     {
@@ -78,8 +78,54 @@ namespace ParserFramework.Examples.Script
         public Command command;
     }
 
-    public class BreakCmd:Command
+    public class BreakCmd : Command
     {
 
+    }
+
+    public class VarDeclCmd : Command
+    {
+        public enum Scope { GLOBAL, LOCAL }
+        public Scope scope = Scope.LOCAL;
+        public string varName;
+        public Expression initializer;
+    }
+
+    public class FunDeclCmd : Command
+    {
+        public string funName;
+        public List<string> parameters = new List<string>();
+        public Command command;
+
+        public override void Execute()
+        {
+            Memory.Functions.Add(funName, new Memory.Function()
+            {
+                name = funName,
+                parameters = parameters,
+                command = command
+            });
+        }
+
+        public override string ToString()
+        {
+            return "fun " + funName + "(" + parameters.ReduceToString(", ") + ")";
+        }
+    }
+
+    public class FunCallCmd:Command
+    {
+        public string funName;
+        public List<float> args = new List<float>();
+
+        public override void Execute()
+        {
+            Memory.Call(funName, args.ToArray());
+        }
+
+        public override string ToString()
+        {
+            return "Call " + funName + "(" + args.ReduceToString(v => v.ToString(), ", ") + ")";
+        }
     }
 }

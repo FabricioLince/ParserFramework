@@ -2,7 +2,7 @@
 
 namespace ParserFramework.Examples.Script
 {
-    public static class Memory
+    public static partial class Memory
     {
         public class Variable
         {
@@ -19,13 +19,32 @@ namespace ParserFramework.Examples.Script
 
         public static void Save(string varName, float value)
         {
-            if (Variables.ContainsKey(varName)) Variables.Remove(varName);
+            if (Variables.ContainsKey(varName))// Check scope??
+            {
+                Variables[varName].value = value;
+                return;
+            }
             Variables.Add(varName, 
                 new Variable()
                 {
                     name = varName,
                     value = value,
                     scope = currentScope
+                });
+        }
+        public static void SaveGlobal(string varName, float value)
+        {
+            if (Variables.ContainsKey(varName)) // Check scope??
+            {
+                Variables[varName].value = value;
+                return;
+            }
+            Variables.Add(varName,
+                new Variable()
+                {
+                    name = varName,
+                    value = value,
+                    scope = 0
                 });
         }
         public static bool Get(string varName, out float value)
@@ -38,6 +57,7 @@ namespace ParserFramework.Examples.Script
             value = 0;
             return false;
         }
+        public static bool Exists(string varName) => Variables.ContainsKey(varName);
 
         public static void IncreaseScope()
         {

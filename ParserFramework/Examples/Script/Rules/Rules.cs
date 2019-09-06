@@ -22,6 +22,8 @@ namespace ParserFramework.Examples.Script
                 WhileCmd,
                 BreakCmd,
                 VarDeclCmd,
+                FunDecl,
+                FunCall,
             }
         };
 
@@ -147,18 +149,77 @@ namespace ParserFramework.Examples.Script
         };
         static ParseRule Scope => new AlternateRule("scope")
         {
-            kind = ParseRule.Kind.Optional,
             possibilities = new List<ParseRule>()
             {
-                new IdRule("global", "local") { name = "type" },
+                new IdRule("global", "local") { name = "scope" },
             }
         };
         static ParseRule VarInit => new GroupRule("VarInit")
         {
+            kind = ParseRule.Kind.Optional,
             rules = new List<ParseRule>()
             {
                 new SymbolRule("="),
                 Expression("expr"),
+            }
+        };
+
+        static ParseRule FunDecl => new GroupRule("FunDecl")
+        {
+            rulesF = new List<System.Func<ParseRule>>()
+            {
+                () => new IdRule("fun"),
+                () => new IdRule(){name ="funName"},
+                () => new SymbolRule("("),
+                () => FunParam,
+                () => new SymbolRule(")"),
+                () => Command
+            }
+        };
+
+        static ParseRule FunParam => new GroupRule("FunParam")
+        {
+            kind = ParseRule.Kind.Optional,
+            rules = new List<ParseRule>()
+            {
+                new IdRule(){name = "param0"},
+                new GroupRule("MoreParams")
+                {
+                    kind = ParseRule.Kind.Multiple,
+                    rules = new List<ParseRule>()
+                    {
+                        new SymbolRule(","),
+                        new IdRule(){name="param"}
+                    }
+                }
+            }
+        };
+
+        static ParseRule FunCall => new GroupRule("FunCall")
+        {
+            rules = new List<ParseRule>()
+            {
+                new IdRule(){name="funName"},
+                new SymbolRule("("),
+                FunArgs,
+                new SymbolRule(")"),
+            }
+        };
+        static ParseRule FunArgs => new GroupRule("FunArgs")
+        {
+            kind = ParseRule.Kind.Optional,
+            rules = new List<ParseRule>()
+            {
+                new NumberRule(){name = "arg0"},
+                new GroupRule("MoreArgs")
+                {
+                    kind = ParseRule.Kind.Multiple,
+                    rules = new List<ParseRule>()
+                    {
+                        new SymbolRule(","),
+                        new NumberRule(){name="arg"}
+                    }
+                }
             }
         };
 

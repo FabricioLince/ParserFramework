@@ -17,9 +17,14 @@ namespace ParserFramework.Examples.Script
 
         public static Dictionary<string, Function> Functions { get; private set; } = new Dictionary<string, Function>();
 
-        public static void Call(string funName, params float[] args)
+        public static void Call(string funName, params Variable[] args)
         {
-            if (!Functions.ContainsKey(funName)) return;
+            if (!Functions.ContainsKey(funName))
+            {
+                Console.WriteLine("No Function named " + funName);
+                return;
+            }
+
             var fun = Functions[funName];
 
             if (args.Length != fun.parameters.Count)

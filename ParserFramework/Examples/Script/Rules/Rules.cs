@@ -26,6 +26,7 @@ namespace ParserFramework.Examples.Script
                 FunCall,
                 ReturnCmd,
                 new TokenRule<CommentToken>(){ ignore=true },
+                new SymbolRule(";"){ignore=true}
             }
         };
 
@@ -212,14 +213,14 @@ namespace ParserFramework.Examples.Script
             kind = ParseRule.Kind.Optional,
             rules = new List<ParseRule>()
             {
-                new NumberRule(){name = "arg0"},
+                Expression("arg0"),
                 new GroupRule("MoreArgs")
                 {
                     kind = ParseRule.Kind.Multiple,
                     rules = new List<ParseRule>()
                     {
                         new SymbolRule(","),
-                        new NumberRule(){name="arg"}
+                        Expression("arg"),
                     }
                 }
             }

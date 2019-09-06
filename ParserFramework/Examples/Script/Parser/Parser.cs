@@ -297,12 +297,12 @@ namespace ParserFramework.Examples.Script
             var args = info.GetChild("FunArgs");
             if (args != null)
             {
-                funCall.args.Add(args.MandatoryToken<NumberToken>("FunArgs", "arg0").Value);
+                funCall.args.Add(CreateExpression(args.MandatoryChild("FunArgs", "arg0")));
 
                 var otherArgs = args.MultipleChildren("FunArgs", "MoreArgs");
                 foreach(var otherArg in otherArgs)
                 {
-                    funCall.args.Add(otherArg.MandatoryToken<NumberToken>("FunArgs", "arg").Value);
+                    funCall.args.Add(CreateExpression(args.MandatoryChild("FunArgs", "arg")));
                 }
             }
 

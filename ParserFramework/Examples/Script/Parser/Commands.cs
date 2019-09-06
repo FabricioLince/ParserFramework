@@ -122,11 +122,11 @@ namespace ParserFramework.Examples.Script
     public class FunCallCmd:Command
     {
         public string funName;
-        public List<float> args = new List<float>();
+        public List<Expression> args = new List<Expression>();
 
         public override void Execute()
         {
-            Memory.Call(funName, args.ToArray());
+            Memory.Call(funName, args.ConvertAll(ExpressionEvaluator.Evaluate).ToArray());
         }
 
         public override string ToString()

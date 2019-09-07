@@ -232,56 +232,5 @@ namespace ParserFramework.Examples.Script
                 Expression("expr")
             }
         };
-
-        public class StringToken : Token
-        {
-            public readonly string Value;
-            public StringToken(string value) : base(Kind.CUSTOM)
-            {
-                this.Value = value;
-            }
-            public override string ToString()
-            {
-                return "STRING \"" + Value + "\"";
-            }
-        }
-
-        public class CommentToken : Token
-        {
-            public CommentToken() : base(Kind.CUSTOM) { }
-            public override string ToString()
-            {
-                return "COMMENT";
-            }
-        }
-
-        public static TokenList DefaultTokenList(string input)
-        {
-            Tokenizer tokenizer = new Tokenizer(new StringReader(input));
-            
-            tokenizer.AddRegexRule(new Regex("^\'([^\"\n])*\'"), m => new StringToken(m.Value.Substring(1, m.Value.Length - 2)));
-            tokenizer.AddRegexRule(new Regex("^\"([^\"\n])*\""), m => new StringToken(m.Value.Substring(1, m.Value.Length - 2)));
-
-            tokenizer.AddRegexRule(new Regex(@"^([0-9]+)"), m => new IntToken(int.Parse(m.Value)));
-            tokenizer.AddRegexRule(new Regex(@"^([0-9]+(?:\.[0-9]+)?)"), m => new FloatToken(float.Parse(m.Value.Replace('.', ','))));
-            tokenizer.AddRegexRule(new Regex(@"^(\w+)"), m => new IdToken(m.Value));
-
-            tokenizer.AddSymbolRule("==");
-            tokenizer.AddSpecialRule(c =>
-            {
-                if (char.IsSymbol(c) || char.IsPunctuation(c)) 
-                {
-                    return new SymbolToken(c);
-                }
-                return null;
-            });
-
-            tokenizer.AddRegexRule(new Regex(@"^\/\/.*\n"), m => new CommentToken());
-
-            tokenizer.ignore = c => char.IsWhiteSpace(c);
-
-            TokenList list = new TokenList(tokenizer);
-            return list;
-        }
     }
 }

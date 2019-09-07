@@ -48,6 +48,9 @@ namespace ParserFramework.Core.ParseRules
                     return null; 
                 }
 
+                if (checkPoint == null) 
+                    checkPoint = rule.checkPoint; // get checkpoint from child
+
                 if (info.IsEmpty) continue; // if it's empty don't put it on the info
 
                 /**/

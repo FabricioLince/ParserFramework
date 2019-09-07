@@ -7,7 +7,7 @@ namespace ParserFramework
     {
         public static void Main()
         {
-            Examples.Script.Main.Run();
+            Examples.CPTest.Main.Run();
         }
     }
 

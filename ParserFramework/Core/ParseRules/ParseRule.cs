@@ -50,6 +50,8 @@ namespace ParserFramework.Core.ParseRules
         /// </summary>
         public bool ignore = false;
 
+        public CheckPointRule checkPoint = null;
+
         protected abstract ParsingInfo Parse(TokenList list);
 
         public ParsingInfo Execute(TokenList list)

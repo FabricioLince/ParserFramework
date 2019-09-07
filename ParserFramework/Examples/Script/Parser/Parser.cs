@@ -235,7 +235,7 @@ namespace ParserFramework.Examples.Script
 
             funDecl.command = CreateCommand(info.MandatoryChild("Command"));
 
-            Console.WriteLine(funDecl);
+            //Console.WriteLine(funDecl);
 
             return funDecl;
         }
@@ -258,7 +258,7 @@ namespace ParserFramework.Examples.Script
                 }
             }
 
-            Console.WriteLine(funCall);
+            //Console.WriteLine(funCall);
 
             return funCall;
         }

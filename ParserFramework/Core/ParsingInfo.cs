@@ -79,6 +79,8 @@ namespace ParserFramework.Core
             return info.GetEnumerator();
         }
 
+        public static implicit operator bool(ParsingInfo info)=>info!=null;
+
         public abstract class Info
         {
             public string name;

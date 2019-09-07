@@ -14,6 +14,8 @@ namespace ParserFramework.Core.ParseRules
             foreach (var rule in possibilities)
             {
                 var info = rule.Execute(list);
+                this.checkPoint = rule.checkPoint;
+
                 if (info != null)
                 {
                     return info;
@@ -21,6 +23,11 @@ namespace ParserFramework.Core.ParseRules
                 else
                 {
                     AddChildErrors(rule.errorInfo);
+                    if (checkPoint != null)
+                    {
+                        //Console.WriteLine("hit check point " + checkPoint.name);
+                        return null;
+                    }
                 }
             }
             Error = true;

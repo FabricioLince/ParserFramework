@@ -9,6 +9,21 @@ namespace ParserFramework.Core
 {
     public static class Utils
     {
+        public static void AddDefaultRuleForInteger(this Tokenizer tokenizer)
+        {
+            tokenizer.AddRegexRule(new Regex(@"^([0-9]+)"), m => new IntToken(int.Parse(m.Value)));
+        }
+
+        public static void AddDefaultRuleForFloat(this Tokenizer tokenizer)
+        {
+            tokenizer.AddRegexRule(new Regex(@"^([0-9]+(?:\.[0-9]+)?)"), m => new FloatToken(float.Parse(m.Value.Replace('.', ','))));
+        }
+
+        public static void AddDefaultRuleForIdentifier(this Tokenizer tokenizer)
+        {
+            tokenizer.AddRegexRule(new Regex(@"^(\w+)"), m => new IdToken(m.Value));
+        }
+
         static string PatternForSymbols(params string[] symbols)
         {
             string pattern = "^(";
